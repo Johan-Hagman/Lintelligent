@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "packages/*"
+  ],
+  "name": "Lintelligent",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Johan-Hagman/Lintelligent.git",
+  "author": "Johan-Hagman <steven.gerard.hagman@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start:frontend": "yarn workspace frontend start",
+    "start:backend": "yarn workspace backend start",
+    "dev": "concurrently \"yarn start:frontend\" \"yarn start:backend\""
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
