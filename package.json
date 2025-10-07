@@ -1,0 +1,25 @@
+{
+  "name": "lintelligent",
+  "version": "1.0.0",
+  "description": "An AI-driven tool for intelligent and consistent code review",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "api",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "keywords": [
+    "ai",
+    "code-review",
+    "linting",
+    "machine-learning"
+  ],
+  "author": "Johan Hagman",
+  "license": "MIT"
+}

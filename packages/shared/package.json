@@ -1,0 +1,26 @@
+{
+  "name": "@lintelligent/shared",
+  "version": "1.0.0",
+  "description": "Shared libraries, types, and utilities for Lintelligent",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "jest"
+  },
+  "keywords": [
+    "shared",
+    "types",
+    "utilities"
+  ],
+  "author": "Johan Hagman",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0"
+  }
+}
