@@ -1,12 +1,32 @@
-// backend/src/services/ai/reviewService.js
 import Anthropic from "@anthropic-ai/sdk";
+
+export interface ReviewCodeParams {
+  apiKey: string;
+  code: string;
+  language?: string;
+  reviewType?: string;
+}
+
+export interface ReviewSuggestion {
+  severity: "low" | "medium" | "high";
+  line: number;
+  message: string;
+  reason: string;
+  fixedCode: string;
+}
+
+export interface ReviewResult {
+  suggestions: ReviewSuggestion[];
+  summary: string;
+  aiModel: string;
+}
 
 export async function reviewCode({
   apiKey,
   code,
   language = "javascript",
   reviewType = "best-practices",
-}) {
+}: ReviewCodeParams): Promise<ReviewResult> {
   const client = new Anthropic({ apiKey });
 
   const result = await client.messages.create({
@@ -37,17 +57,17 @@ export async function reviewCode({
     ],
   });
 
-  const content = result?.content?.[0]?.text ?? "";
-  let parsed;
+  const content = (result as any)?.content?.[0]?.text ?? "";
+  let parsed: ReviewResult;
   try {
     parsed = JSON.parse(content);
   } catch {
     parsed = {
       suggestions: [],
       summary: content || "No structured JSON returned",
-      aiModel: result?.model || "unknown",
+      aiModel: (result as any)?.model || "unknown",
     };
   }
-  if (!parsed.aiModel) parsed.aiModel = result?.model || "unknown";
+  if (!parsed.aiModel) parsed.aiModel = (result as any)?.model || "unknown";
   return parsed;
 }
