@@ -13,10 +13,11 @@
   "license": "MIT",
   "scripts": {
     "start:frontend": "yarn workspace frontend start",
-    "start:backend": "yarn workspace backend start",
+    "start:backend": "yarn workspace backend dev",
     "dev": "concurrently \"yarn start:frontend\" \"yarn start:backend\""
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1",
     "concurrently": "^9.2.1"
   },
   "devDependencies": {

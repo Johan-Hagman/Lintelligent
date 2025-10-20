@@ -1,8 +1,8 @@
-# Intelligent - AI Code Review Assistant
+# Lintelligent - AI Code Review Assistant
 
 ## Project Overview
 
-Examensarbete (thesis project) for web development education. 6-week project building an AI-driven code review tool using Model Context Protocol (MCP).
+Thesis project for web development education. 6-week project building an AI-driven code review tool using Model Context Protocol (MCP).
 
 **Core Goal:** Demonstrate ability to learn new technologies and build functional applications with them.
 
@@ -75,7 +75,7 @@ External Services
 ## Project Structure (Monorepo)
 
 ```
-intelligent/
+Lintelligent/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # UI components
@@ -125,6 +125,7 @@ intelligent/
 - Basic statistics dashboard
 - Deployment (publicly accessible)
 - Comprehensive documentation
+- Tests (unit tests, integration tests, e2e tests)
 
 ### ❌ OUT OF SCOPE (Not Required):
 
