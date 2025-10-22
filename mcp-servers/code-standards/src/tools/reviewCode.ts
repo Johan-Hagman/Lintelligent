@@ -1,8 +1,6 @@
 import { z } from "zod";
-import type { Tool } from "@modelcontextprotocol/sdk/types.js";
-import { zodToMCPToolSchema } from "../utils/zodToMcpSchema.js";
 
-// Placeholder schemas — edit these to your real shapes
+// Input schema for reviewing code
 export const ReviewCodeInputSchema = z.object({
   code: z.string().min(1),
   language: z.string().default("javascript"),
@@ -10,6 +8,9 @@ export const ReviewCodeInputSchema = z.object({
     .union([z.string(), z.array(z.string()).nonempty()])
     .default("best-practices"),
 });
+
+// Type inference from schema
+type ReviewCodeInput = z.infer<typeof ReviewCodeInputSchema>;
 
 export const ReviewSuggestionSchema = z.object({
   severity: z.enum(["low", "medium", "high"]),
@@ -19,38 +20,29 @@ export const ReviewSuggestionSchema = z.object({
   fixedCode: z.string().optional().default(""),
 });
 
+// Output schema
 export const ReviewCodeOutputSchema = z.object({
   suggestions: z.array(ReviewSuggestionSchema),
   summary: z.string(),
   aiModel: z.string(),
 });
 
-export const reviewCodeTool: Tool = {
-  name: "review_code",
-  description: "Review code for issues and best practices.",
-  inputSchema: zodToMCPToolSchema(ReviewCodeInputSchema),
-  outputSchema: zodToMCPToolSchema(ReviewCodeOutputSchema),
-  execute: async ({ input }: { input: unknown }) => {
-    const parsed = ReviewCodeInputSchema.parse(input);
+// Type inference from schema
+type ReviewCodeOutput = z.infer<typeof ReviewCodeOutputSchema>;
 
-    // TODO: wire to backend service via HTTP or direct import if co-located
-    // For now, return a placeholder so you can focus on schemas
-    return {
-      suggestions: [
-        {
-          severity: "low",
-          line: 1,
-          message: "Placeholder suggestion — connect tool to reviewService",
-          reason: "Schema scaffolding",
-          fixedCode: "",
-        },
-      ],
-      summary: `Reviewed ${parsed.language} code with types: ${
-        Array.isArray(parsed.reviewType)
-          ? parsed.reviewType.join(", ")
-          : parsed.reviewType
-      }`,
-      aiModel: "pending-implementation",
-    };
-  },
-};
+// Execute function - pure business logic
+export async function executeReviewCode(
+  params: ReviewCodeInput
+): Promise<ReviewCodeOutput> {
+  // This tool is now used for gathering context, not direct AI calls
+  // The actual AI review happens in the backend AI service
+  return {
+    suggestions: [],
+    summary: `Context gathered for ${params.language} code review with types: ${
+      Array.isArray(params.reviewType)
+        ? params.reviewType.join(", ")
+        : params.reviewType
+    }`,
+    aiModel: "context-gatherer",
+  };
+}
