@@ -57,7 +57,7 @@ class MCPService {
     // Step 1: Get MCP context from both tools
     let mcpContext = "";
     try {
-      // Get coding standards
+      // Get coding standards (best practices)
       const standardsResult = await this.client!.callTool({
         name: "get_coding_standards",
         arguments: {
@@ -65,19 +65,17 @@ class MCPService {
         },
       });
 
-      // Get review context
-      const reviewResult = await this.client!.callTool({
-        name: "review_code",
+      // Get security rules
+      const securityResult = await this.client!.callTool({
+        name: "get_security_rules",
         arguments: {
-          code: params.code,
           language: params.language || "javascript",
-          reviewType: params.reviewType || "best-practices",
         },
       });
 
       mcpContext = JSON.stringify({
-        standards: standardsResult,
-        reviewContext: reviewResult,
+        codingStandards: standardsResult,
+        securityRules: securityResult,
       });
       console.log("MCP Context received from both tools");
     } catch (error) {

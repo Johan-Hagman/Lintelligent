@@ -4,9 +4,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
-  ReviewCodeInputSchema,
-  executeReviewCode,
-} from "./tools/reviewCode.js";
+  GetSecurityRulesInputSchema,
+  executeGetSecurityRules,
+} from "./tools/getSecurityRules.js";
 import {
   GetCodingStandardsInputSchema,
   executeGetCodingStandards,
@@ -18,15 +18,15 @@ async function main() {
     version: "0.1.0",
   });
 
-  // Register review_code tool
+  // Register get_security_rules tool
   // Pass the full Zod schema object - SDK handles validation
   server.tool(
-    "review_code",
-    ReviewCodeInputSchema as any,
+    "get_security_rules",
+    GetSecurityRulesInputSchema as any,
     async (params: any): Promise<any> => {
-      console.log("Review code tool called with:", params);
+      console.log("Get security rules tool called with:", params);
 
-      const result = await executeReviewCode(params);
+      const result = await executeGetSecurityRules(params);
 
       return {
         content: [
