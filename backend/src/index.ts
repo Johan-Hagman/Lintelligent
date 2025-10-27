@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import "dotenv/config";
 import cors from "cors";
+import { v4 as uuidv4 } from "uuid";
 import { mcpService } from "./services/mcp/mcpService.js";
 import { supabaseService } from "./services/database/supabaseService.js";
 
@@ -40,7 +41,7 @@ app.post("/api/review", async (req: Request, res: Response) => {
     });
 
     // Generate review ID
-    const reviewId = `review_${Date.now()}`;
+    const reviewId = uuidv4();
 
     // Try to save to database (non-blocking - don't fail if DB fails)
     try {
