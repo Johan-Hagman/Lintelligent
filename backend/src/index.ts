@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import "dotenv/config";
 import cors from "cors";
 import { mcpService } from "./services/mcp/mcpService.js";
+import { supabaseService } from "./services/database/supabaseService.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -38,8 +39,27 @@ app.post("/api/review", async (req: Request, res: Response) => {
       apiKey,
     });
 
+    // Generate review ID
+    const reviewId = `review_${Date.now()}`;
+
+    // Try to save to database (non-blocking - don't fail if DB fails)
+    try {
+      await supabaseService.saveReview({
+        code,
+        language,
+        reviewType,
+        aiFeedback: result,
+        aiModel: result.aiModel,
+      });
+      console.log("Review saved to database:", reviewId);
+    } catch (dbError) {
+      console.warn("Failed to save to database:", dbError);
+      // Continue anyway - user still gets their review!
+    }
+
+    // Return response (same format as before!)
     res.json({
-      id: `review_${Date.now()}`,
+      id: reviewId,
       feedback: result,
       createdAt: new Date().toISOString(),
     });
@@ -47,6 +67,40 @@ app.post("/api/review", async (req: Request, res: Response) => {
     console.error("Review error:", error);
     res.status(500).json({
       error: "Failed to review code",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+});
+
+// PATCH /api/review/:id/rating - Update rating for a review
+app.patch("/api/review/:id/rating", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { rating } = req.body;
+
+    if (!rating || (rating !== 1 && rating !== -1)) {
+      return res
+        .status(400)
+        .json({ error: "Rating must be 1 (thumbs up) or -1 (thumbs down)" });
+    }
+
+    // Try to update in database
+    try {
+      await supabaseService.updateRating(id, rating);
+      console.log("Rating saved:", id, rating === 1 ? "👍" : "👎");
+    } catch (dbError) {
+      console.warn("Failed to save rating to database:", dbError);
+      // Return success anyway - we got the user's feedback
+    }
+
+    res.json({
+      success: true,
+      message: "Rating received",
+    });
+  } catch (error) {
+    console.error("Rating error:", error);
+    res.status(500).json({
+      error: "Failed to update rating",
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
