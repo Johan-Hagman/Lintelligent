@@ -5,6 +5,7 @@ export interface ReviewCodeParams {
   code: string;
   language?: string;
   reviewType?: string;
+  mcpContext?: string;
 }
 
 export interface ReviewSuggestion {
@@ -26,8 +27,14 @@ export async function reviewCode({
   code,
   language = "javascript",
   reviewType = "best-practices",
+  mcpContext = "",
 }: ReviewCodeParams): Promise<ReviewResult> {
   const client = new Anthropic({ apiKey });
+
+  // Build prompt with MCP context if available
+  const contextPrompt = mcpContext
+    ? `\n\nCONTEXT FROM MCP SERVER:\n${mcpContext}\n\n`
+    : "";
 
   const result = await client.messages.create({
     model: "claude-3-haiku-20240307",
@@ -46,6 +53,7 @@ export async function reviewCode({
           "Review the code below.",
           `Language: ${language}`,
           `Review type: ${reviewType}`,
+          contextPrompt,
           "Show a few lines of suggested fixes in fixedCode when relevant.",
           "",
           "CODE:",
