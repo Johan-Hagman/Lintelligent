@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import "dotenv/config";
 import cors from "cors";
+import helmet from "helmet";
 import { v4 as uuidv4 } from "uuid";
 import { mcpService } from "./services/mcp/mcpService.js";
 import { supabaseService } from "./services/database/supabaseService.js";
@@ -8,6 +9,7 @@ import { supabaseService } from "./services/database/supabaseService.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
