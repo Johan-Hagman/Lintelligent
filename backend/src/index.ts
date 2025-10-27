@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
 import "dotenv/config";
+import cors from "cors";
 import { mcpService } from "./services/mcp/mcpService.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (_req: Request, res: Response) => {

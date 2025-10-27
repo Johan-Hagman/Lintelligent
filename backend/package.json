@@ -7,6 +7,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
     "@modelcontextprotocol/sdk": "^1.20.1",
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.18.2"
   },
