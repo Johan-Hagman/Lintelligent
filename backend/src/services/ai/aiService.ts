@@ -45,7 +45,9 @@ export async function reviewCode({
         content:
           "You are a thorough code reviewer. Respond ONLY with valid JSON according to this schema: " +
           '{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":string, "aiModel":string}. ' +
-          "No extra text outside JSON.",
+          "No extra text outside JSON. " +
+          "Rules: Each suggestion MUST (1) reference an existing line number, (2) include an evidence snippet quoting the exact offending code, and (3) only flag issues that actually appear in the provided code. " +
+          "If a rule (e.g. var vs let) does not apply because the token is not present, DO NOT include that suggestion.",
       },
       {
         role: "user",
@@ -54,6 +56,8 @@ export async function reviewCode({
           `Language: ${language}`,
           `Review type: ${reviewType}`,
           contextPrompt,
+          "Requirements:",
+          "- For every suggestion, cite the exact line number and quote the exact code that is wrong.",
           "Show a few lines of suggested fixes in fixedCode when relevant.",
           "",
           "CODE:",
