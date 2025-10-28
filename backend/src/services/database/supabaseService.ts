@@ -32,6 +32,7 @@ class SupabaseService {
 
   // Save a new code review
   async saveReview(data: {
+    id: string;
     code: string;
     language: string;
     reviewType: string;
@@ -43,6 +44,7 @@ class SupabaseService {
     const { data: review, error } = await client
       .from("code_reviews")
       .insert({
+        id: data.id,
         code: data.code,
         language: data.language,
         review_type: data.reviewType,
