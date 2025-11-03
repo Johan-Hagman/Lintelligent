@@ -19,5 +19,3 @@ export default function ReviewButton({ onClick, disabled, loading }: Props) {
     </button>
   );
 }
-
-

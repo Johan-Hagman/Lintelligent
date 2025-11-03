@@ -62,5 +62,3 @@ export default function SuggestionItem({ suggestion }: Props) {
     </div>
   );
 }
-
-

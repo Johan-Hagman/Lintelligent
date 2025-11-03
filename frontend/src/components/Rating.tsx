@@ -65,5 +65,3 @@ export default function Rating({ visible, rated, onRate }: Props) {
     </div>
   );
 }
-
-
