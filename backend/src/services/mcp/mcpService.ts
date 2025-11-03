@@ -54,10 +54,10 @@ class MCPService {
       await this.connect();
     }
 
-    // Step 1: Get MCP context from both tools
+    // Fetch MCP context from tools
     let mcpContext = "";
     try {
-      // Get coding standards (best practices)
+      // Coding standards
       const standardsResult = await this.client!.callTool({
         name: "get_coding_standards",
         arguments: {
@@ -65,7 +65,7 @@ class MCPService {
         },
       });
 
-      // Get security rules
+      // Security rules
       const securityResult = await this.client!.callTool({
         name: "get_security_rules",
         arguments: {
@@ -83,8 +83,8 @@ class MCPService {
       // Continue without context if MCP tools fail
     }
 
-    // Step 2: Use AI Service with MCP context
-    const result = await aiReviewCode({
+    // Run AI review with MCP context
+    const aiResult = await aiReviewCode({
       apiKey: params.apiKey,
       code: params.code,
       language: params.language || "javascript",
@@ -92,7 +92,8 @@ class MCPService {
       mcpContext: mcpContext,
     });
 
-    return result;
+    // Return AI result directly (no static analysis combination)
+    return aiResult;
   }
 
   async disconnect(): Promise<void> {
