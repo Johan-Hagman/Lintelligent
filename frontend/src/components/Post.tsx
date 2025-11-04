@@ -82,18 +82,59 @@ function Post() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h1>Lintelligent</h1>
+    <div
+      style={{
+        padding: "24px",
+        maxWidth: "900px",
+        margin: "0 auto",
+        minHeight: "100vh",
+      }}
+    >
+      <div style={{ marginBottom: "32px" }}>
+        <h1
+          style={{
+            margin: "0 0 8px 0",
+            fontSize: "32px",
+            fontWeight: "700",
+            color: "#111827",
+            letterSpacing: "-0.5px",
+          }}
+        >
+          Lintelligent
+        </h1>
+        <p style={{ margin: "0", color: "#6b7280", fontSize: "16px" }}>
+          AI-powered code review with project context
+        </p>
+      </div>
 
-      <LanguageSelector value={language} onChange={setLanguage} />
+      <div
+        style={{
+          backgroundColor: "white",
+          border: "1px solid #e5e7eb",
+          borderRadius: "12px",
+          padding: "24px",
+          marginBottom: "24px",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+        }}
+      >
+        <LanguageSelector value={language} onChange={setLanguage} />
 
-      <CodeEditorPane code={code} onChange={setCode} language={language} />
+        <CodeEditorPane code={code} onChange={setCode} language={language} />
 
-      <ReviewButton
-        onClick={handleSubmit}
-        disabled={loading}
-        loading={loading}
-      />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "16px",
+          }}
+        >
+          <ReviewButton
+            onClick={handleSubmit}
+            disabled={loading}
+            loading={loading}
+          />
+        </div>
+      </div>
 
       <ErrorAlert message={error} />
 

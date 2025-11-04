@@ -31,40 +31,48 @@ export async function reviewCode({
 }: ReviewCodeParams): Promise<ReviewResult> {
   const client = new Anthropic({ apiKey });
 
-  // Build prompt with MCP context if available
-  const contextPrompt = mcpContext
-    ? `\n\nCONTEXT FROM MCP SERVER:\n${mcpContext}\n\n`
+  // Build compressed MCP context (only if available, placed at end to minimize influence)
+  const mcpCompressedHint = mcpContext
+    ? `\n\nOPTIONAL HINTS (use only if code evidence supports them, ignore if they conflict with actual code behavior): ${mcpContext}`
     : "";
 
   const result = await client.messages.create({
     model: "claude-3-haiku-20240307",
-    max_tokens: 700,
+    max_tokens: 1500,
+    temperature: 0.1,
     messages: [
       {
         role: "user",
         content:
-          "You are a thorough code reviewer. Respond ONLY with valid JSON according to this schema: " +
-          '{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":string, "aiModel":string}. ' +
-          "No extra text outside JSON. " +
-          "Rules: Each suggestion MUST (1) reference an existing line number, (2) include an evidence snippet quoting the exact offending code, and (3) only flag issues that actually appear in the provided code. " +
-          "If a rule (e.g. var vs let) does not apply because the token is not present, DO NOT include that suggestion.",
+          "You are a code reviewer. Return ONLY valid JSON in this format: " +
+          '{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":"plain text summary", "aiModel":"claude-3-haiku-20240307"}. ' +
+          "Return ONLY raw JSON, no markdown, no prose, no code fences. " +
+          "PRIORITY: Code evidence FIRST. Examine actual code behavior before external hints. " +
+          "SEVERITY GUIDE: Type mismatches (API/method returns different type than declared/expected) = medium+. Runtime errors (ReferenceError, undefined access, out-of-scope variables) = medium+. Logic errors = medium+. Security risks = high. Style-only (prefer-const, formatting) = low. " +
+          "CRITICAL: When a method/API returns a different type than the function declares or expects, that's a TYPE MISMATCH bug (medium+), not a style suggestion. " +
+          "When a variable is accessed outside its scope, that's a RUNTIME ERROR (medium+), not a style issue. " +
+          "Look for: type mismatches, logic errors, scope issues, API misuse, security risks. " +
+          "Each suggestion MUST cite exact line number and quote the exact offending code. " +
+          "Only flag issues actually present in the code.",
       },
       {
         role: "user",
         content: [
-          "Review the code below.",
+          "Review this code:",
           `Language: ${language}`,
-          `Review type: ${reviewType}`,
-          contextPrompt,
-          "Requirements:",
-          "- For every suggestion, cite the exact line number and quote the exact code that is wrong.",
-          "Show a few lines of suggested fixes in fixedCode when relevant.",
           "",
           "CODE:",
           "```",
           code,
           "```",
-        ].join("\n"),
+          "",
+          "Requirements:",
+          "- Cite exact line number and quote exact code for each issue.",
+          "- Show suggested fixes in fixedCode when relevant.",
+          mcpCompressedHint,
+        ]
+          .filter(Boolean)
+          .join("\n"),
       },
     ],
   });
@@ -72,7 +80,11 @@ export async function reviewCode({
   const content = (result as any)?.content?.[0]?.text ?? "";
   let parsed: ReviewResult;
   try {
-    parsed = JSON.parse(content);
+    const first = content.indexOf("{");
+    const last = content.lastIndexOf("}");
+    const candidate =
+      first >= 0 && last > first ? content.slice(first, last + 1) : content;
+    parsed = JSON.parse(candidate);
   } catch {
     parsed = {
       suggestions: [],
