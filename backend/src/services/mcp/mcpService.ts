@@ -54,10 +54,10 @@ class MCPService {
       await this.connect();
     }
 
-    // Fetch MCP context from tools
+    // Fetch MCP context from tools (compressed - only top 3-4 per category)
     let mcpContext = "";
     try {
-      // Coding standards
+      // Coding standards (get only top 3 most critical)
       const standardsResult = await this.client!.callTool({
         name: "get_coding_standards",
         arguments: {
@@ -65,7 +65,7 @@ class MCPService {
         },
       });
 
-      // Security rules
+      // Security rules (get only top 3 most critical)
       const securityResult = await this.client!.callTool({
         name: "get_security_rules",
         arguments: {
@@ -73,11 +73,50 @@ class MCPService {
         },
       });
 
-      mcpContext = JSON.stringify({
-        codingStandards: standardsResult,
-        securityRules: securityResult,
-      });
-      console.log("MCP Context received from both tools");
+      // Compress: Extract only high-priority rules (severity: high, max 3 per category)
+      // MCP returns { content: [{ type: "text", text: JSON.stringify(result) }] }
+      const standardsContent =
+        Array.isArray(standardsResult.content) &&
+        standardsResult.content[0]?.type === "text"
+          ? standardsResult.content[0]
+          : null;
+      const standardsData = standardsContent?.text
+        ? JSON.parse(standardsContent.text)
+        : null;
+
+      const compressedStandards =
+        standardsData?.rules
+          ?.filter((r: any) => r.severity === "high")
+          .slice(0, 3)
+          .map((r: any) => `${r.title}: ${r.description}`)
+          .join("; ") || "";
+
+      const securityContent =
+        Array.isArray(securityResult.content) &&
+        securityResult.content[0]?.type === "text"
+          ? securityResult.content[0]
+          : null;
+      const securityData = securityContent?.text
+        ? JSON.parse(securityContent.text)
+        : null;
+
+      const compressedSecurity =
+        securityData?.rules
+          ?.filter((r: any) => r.severity === "high")
+          .slice(0, 3)
+          .map((r: any) => `${r.title}: ${r.description}`)
+          .join("; ") || "";
+
+      // Build minimal context string (not JSON dump)
+      const parts = [];
+      if (compressedStandards) parts.push(`Standards: ${compressedStandards}`);
+      if (compressedSecurity) parts.push(`Security: ${compressedSecurity}`);
+      mcpContext = parts.length > 0 ? parts.join(" | ") : "";
+
+      console.log(
+        "MCP Context compressed:",
+        mcpContext.substring(0, 100) + "..."
+      );
     } catch (error) {
       console.warn("Could not get MCP context:", error);
       // Continue without context if MCP tools fail
