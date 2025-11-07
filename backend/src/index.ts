@@ -77,7 +77,16 @@ app.get("/api/auth/github/login", (_req: Request, res: Response) => {
     return res.status(500).json({ error: "GitHub OAuth not configured" });
   }
 
-  const state = Math.random().toString(36).slice(2);
+  // Generate and store state in signed cookie for CSRF protection
+  const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  res.cookie("oauth_state", state, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    signed: true,
+    maxAge: 1000 * 60 * 10, // 10 minutes
+  });
+
   const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
     clientId
   )}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(
@@ -88,9 +97,26 @@ app.get("/api/auth/github/login", (_req: Request, res: Response) => {
 
 app.get("/api/auth/github/callback", async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  const state = req.query.state as string;
+
   if (!code) {
     return res.status(400).send("Missing authorization code");
   }
+
+  if (!state) {
+    return res.status(400).send("Missing state parameter");
+  }
+
+  // Verify state to prevent CSRF attacks
+  const storedState = req.signedCookies?.oauth_state;
+  if (!storedState || storedState !== state) {
+    return res
+      .status(403)
+      .send("Invalid state parameter - possible CSRF attack");
+  }
+
+  // Clear state cookie after verification
+  res.clearCookie("oauth_state");
 
   try {
     // Exchange code for access token
