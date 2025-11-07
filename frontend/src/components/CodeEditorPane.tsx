@@ -37,7 +37,9 @@ export default function CodeEditorPane({ code, onChange, language }: Props) {
         style={{
           fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
           fontSize: 14,
-          minHeight: "400px",
+          height: "500px",
+          maxHeight: "500px",
+          overflow: "auto",
           backgroundColor: "#1e1e1e",
           color: "#d4d4d4",
         }}
