@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LanguageSelector from "./LanguageSelector";
 import CodeEditorPane from "./CodeEditorPane";
 import ReviewButton from "./ReviewButton";
 import ErrorAlert from "./ErrorAlert";
 import Feedback from "./Feedback";
 import Rating from "./Rating";
+import GitHubAuth from "./GitHubAuth";
+import RepoPicker from "./RepoPicker";
 import { ReviewFeedback } from "./Post.types";
 
 function Post() {
+  const [activeTab, setActiveTab] = useState<"paste" | "repo">("paste");
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [feedback, setFeedback] = useState<ReviewFeedback | null>(null);
@@ -15,6 +18,39 @@ function Post() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [rated, setRated] = useState<number | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/api/auth/me", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setIsAuthenticated(data.authenticated);
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+    }
+  };
+
+  const handleFileSelect = (content: string, path: string) => {
+    setCode(content);
+    setFeedback(null);
+    setReviewId(null);
+    setRated(null);
+    setError("");
+    // Auto-detect language from file extension
+    if (path.endsWith(".ts") || path.endsWith(".tsx")) {
+      setLanguage("typescript");
+    } else {
+      setLanguage("javascript");
+    }
+  };
 
   const handleRating = async (rating: number) => {
     if (!reviewId) return;
@@ -91,20 +127,59 @@ function Post() {
       }}
     >
       <div style={{ marginBottom: "32px" }}>
-        <h1
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h1
+              style={{
+                margin: "0 0 8px 0",
+                fontSize: "32px",
+                fontWeight: "700",
+                color: "#111827",
+                letterSpacing: "-0.5px",
+              }}
+            >
+              Lintelligent
+            </h1>
+            <p style={{ margin: "0", color: "#6b7280", fontSize: "16px" }}>
+              AI-powered code review with project context
+            </p>
+          </div>
+          <GitHubAuth onAuthChange={setIsAuthenticated} />
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ marginBottom: "20px", borderBottom: "1px solid #e5e7eb" }}>
+        <button
+          onClick={() => setActiveTab("paste")}
           style={{
-            margin: "0 0 8px 0",
-            fontSize: "32px",
-            fontWeight: "700",
-            color: "#111827",
-            letterSpacing: "-0.5px",
+            padding: "10px 20px",
+            border: "none",
+            backgroundColor: "transparent",
+            borderBottom: activeTab === "paste" ? "2px solid #3b82f6" : "2px solid transparent",
+            color: activeTab === "paste" ? "#3b82f6" : "#6b7280",
+            cursor: "pointer",
+            fontWeight: activeTab === "paste" ? "600" : "400",
           }}
         >
-          Lintelligent
-        </h1>
-        <p style={{ margin: "0", color: "#6b7280", fontSize: "16px" }}>
-          AI-powered code review with project context
-        </p>
+          Paste Code
+        </button>
+        <button
+          onClick={() => setActiveTab("repo")}
+          disabled={!isAuthenticated}
+          style={{
+            padding: "10px 20px",
+            border: "none",
+            backgroundColor: "transparent",
+            borderBottom: activeTab === "repo" ? "2px solid #3b82f6" : "2px solid transparent",
+            color: activeTab === "repo" ? "#3b82f6" : isAuthenticated ? "#6b7280" : "#d1d5db",
+            cursor: isAuthenticated ? "pointer" : "not-allowed",
+            fontWeight: activeTab === "repo" ? "600" : "400",
+            opacity: isAuthenticated ? 1 : 0.5,
+          }}
+        >
+          Review from Repo
+        </button>
       </div>
 
       <div
@@ -117,23 +192,58 @@ function Post() {
           boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
         }}
       >
-        <LanguageSelector value={language} onChange={setLanguage} />
-
-        <CodeEditorPane code={code} onChange={setCode} language={language} />
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "16px",
-          }}
-        >
-          <ReviewButton
-            onClick={handleSubmit}
-            disabled={loading}
-            loading={loading}
-          />
-        </div>
+        {activeTab === "paste" ? (
+          <>
+            <LanguageSelector value={language} onChange={setLanguage} />
+            <CodeEditorPane code={code} onChange={setCode} language={language} />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "16px",
+              }}
+            >
+              <ReviewButton
+                onClick={handleSubmit}
+                disabled={loading}
+                loading={loading}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            {!isAuthenticated ? (
+              <div style={{ padding: "20px", textAlign: "center", color: "#6b7280" }}>
+                Please connect GitHub to review files from repositories.
+              </div>
+            ) : (
+              <>
+                <RepoPicker onFileSelect={handleFileSelect} />
+                {code && (
+                  <>
+                    <div style={{ marginTop: "20px" }}>
+                      <LanguageSelector value={language} onChange={setLanguage} />
+                    </div>
+                    <CodeEditorPane code={code} onChange={setCode} language={language} />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "16px",
+                      }}
+                    >
+                      <ReviewButton
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        loading={loading}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
       </div>
 
       <ErrorAlert message={error} />
