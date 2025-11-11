@@ -55,12 +55,13 @@ export async function reviewCode({
           '{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":"plain text summary", "aiModel":"claude-3-haiku-20240307"}. ' +
           "Return ONLY raw JSON, no markdown, no prose, no code fences. " +
           "PRIORITY: Code evidence FIRST. Examine actual code behavior before external hints. " +
-          "SEVERITY GUIDE: Type mismatches (API/method returns different type than declared/expected) = medium+. Runtime errors (ReferenceError, undefined access, out-of-scope variables) = medium+. Logic errors = medium+. Security risks = high. Style-only (prefer-const, formatting) = low. " +
+          "SEVERITY GUIDE: Type mismatches (API/method returns different type than declared/expected) = medium+. Runtime errors (ReferenceError, undefined access, out-of-scope variables) = medium+. Logic errors = medium+. Security risks = high. Style-only = low. " +
           "CRITICAL: When a method/API returns a different type than the function declares or expects, that's a TYPE MISMATCH bug (medium+), not a style suggestion. " +
           "When a variable is accessed outside its scope, that's a RUNTIME ERROR (medium+), not a style issue. " +
           "Look for: type mismatches, logic errors, scope issues, API misuse, security risks. " +
           "Each suggestion MUST cite exact line number and quote the exact offending code. " +
-          "Only flag issues actually present in the code.",
+          "Only flag issues actually present in the code." +
+          "Review TARGET FILE line by line. When needed, look at related files from PROJECT CONTEXT to confirm how shared state or helpers behave.",
       },
       {
         role: "user",

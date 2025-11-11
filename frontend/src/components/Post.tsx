@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import LanguageSelector from "./LanguageSelector";
-import CodeEditorPane from "./CodeEditorPane";
-import ReviewButton from "./ReviewButton";
 import ErrorAlert from "./ErrorAlert";
 import Feedback from "./Feedback";
 import Rating from "./Rating";
-import GitHubAuth from "./GitHubAuth";
-import RepoPicker from "./RepoPicker";
+import PostHeader from "./post/PostHeader";
+import ReviewTabs from "./post/ReviewTabs";
+import PasteReviewContent from "./post/PasteReviewContent";
+import RepoReviewContent from "./post/RepoReviewContent";
 import { ReviewFeedback } from "./Post.types";
+
+type ReviewTab = "paste" | "repo";
 
 function Post() {
   const [activeTab, setActiveTab] = useState<"paste" | "repo">("paste");
@@ -149,6 +150,13 @@ function Post() {
     }
   };
 
+  const handleTabSelect = (tab: ReviewTab) => {
+    setActiveTab(tab);
+    if (tab === "paste") {
+      setRepoInfo(null);
+    }
+  };
+
   return (
     <div
       style={{
@@ -158,81 +166,13 @@ function Post() {
         minHeight: "100vh",
       }}
     >
-      <div style={{ marginBottom: "32px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div>
-            <h1
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "32px",
-                fontWeight: "700",
-                color: "#111827",
-                letterSpacing: "-0.5px",
-              }}
-            >
-              Lintelligent
-            </h1>
-            <p style={{ margin: "0", color: "#6b7280", fontSize: "16px" }}>
-              AI-powered code review with project context
-            </p>
-          </div>
-          <GitHubAuth onAuthChange={setIsAuthenticated} />
-        </div>
-      </div>
+      <PostHeader onAuthChange={setIsAuthenticated} />
 
-      {/* Tabs */}
-      <div style={{ marginBottom: "20px", borderBottom: "1px solid #e5e7eb" }}>
-        <button
-          onClick={() => {
-            setActiveTab("paste");
-            setRepoInfo(null); // Clear repo info when switching to paste tab
-          }}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom:
-              activeTab === "paste"
-                ? "2px solid #3b82f6"
-                : "2px solid transparent",
-            color: activeTab === "paste" ? "#3b82f6" : "#6b7280",
-            cursor: "pointer",
-            fontWeight: activeTab === "paste" ? "600" : "400",
-          }}
-        >
-          Paste Code
-        </button>
-        <button
-          onClick={() => setActiveTab("repo")}
-          disabled={!isAuthenticated}
-          style={{
-            padding: "10px 20px",
-            border: "none",
-            backgroundColor: "transparent",
-            borderBottom:
-              activeTab === "repo"
-                ? "2px solid #3b82f6"
-                : "2px solid transparent",
-            color:
-              activeTab === "repo"
-                ? "#3b82f6"
-                : isAuthenticated
-                ? "#6b7280"
-                : "#d1d5db",
-            cursor: isAuthenticated ? "pointer" : "not-allowed",
-            fontWeight: activeTab === "repo" ? "600" : "400",
-            opacity: isAuthenticated ? 1 : 0.5,
-          }}
-        >
-          Review from Repo
-        </button>
-      </div>
+      <ReviewTabs
+        activeTab={activeTab}
+        onSelect={handleTabSelect}
+        isAuthenticated={isAuthenticated}
+      />
 
       <div
         style={{
@@ -245,73 +185,25 @@ function Post() {
         }}
       >
         {activeTab === "paste" ? (
-          <>
-            <LanguageSelector value={language} onChange={setLanguage} />
-            <CodeEditorPane
-              code={code}
-              onChange={setCode}
-              language={language}
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "16px",
-              }}
-            >
-              <ReviewButton
-                onClick={handleSubmit}
-                disabled={loading}
-                loading={loading}
-              />
-            </div>
-          </>
+          <PasteReviewContent
+            code={code}
+            language={language}
+            onCodeChange={setCode}
+            onLanguageChange={setLanguage}
+            loading={loading}
+            onSubmit={handleSubmit}
+          />
         ) : (
-          <>
-            {!isAuthenticated ? (
-              <div
-                style={{
-                  padding: "20px",
-                  textAlign: "center",
-                  color: "#6b7280",
-                }}
-              >
-                Please connect GitHub to review files from repositories.
-              </div>
-            ) : (
-              <>
-                <RepoPicker onFileSelect={handleFileSelect} />
-                {code && (
-                  <>
-                    <div style={{ marginTop: "20px" }}>
-                      <LanguageSelector
-                        value={language}
-                        onChange={setLanguage}
-                      />
-                    </div>
-                    <CodeEditorPane
-                      code={code}
-                      onChange={setCode}
-                      language={language}
-                    />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        marginTop: "16px",
-                      }}
-                    >
-                      <ReviewButton
-                        onClick={handleSubmit}
-                        disabled={loading}
-                        loading={loading}
-                      />
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-          </>
+          <RepoReviewContent
+            isAuthenticated={isAuthenticated}
+            code={code}
+            language={language}
+            onCodeChange={setCode}
+            onLanguageChange={setLanguage}
+            loading={loading}
+            onSubmit={handleSubmit}
+            onFileSelect={handleFileSelect}
+          />
         )}
       </div>
 
