@@ -29,7 +29,11 @@ interface TreeResponse {
 export default function RepoPicker({
   onFileSelect,
 }: {
-  onFileSelect: (content: string, path: string) => void;
+  onFileSelect: (
+    content: string,
+    path: string,
+    repoInfo?: { owner: string; repo: string; ref: string; filePath: string }
+  ) => void;
 }) {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
@@ -65,7 +69,18 @@ export default function RepoPicker({
 
   useEffect(() => {
     if (selectedRepo && selectedBranch && selectedFile) {
+      console.log("useEffect triggering fetchFileContent:", {
+        selectedRepo,
+        selectedBranch,
+        selectedFile,
+      });
       fetchFileContent(selectedRepo, selectedBranch, selectedFile);
+    } else {
+      console.log("useEffect not triggering - missing:", {
+        selectedRepo,
+        selectedBranch,
+        selectedFile,
+      });
     }
   }, [selectedRepo, selectedBranch, selectedFile]);
 
@@ -118,8 +133,7 @@ export default function RepoPicker({
         // Filter only JS/TS files
         const codeFiles = data.tree.filter(
           (node) =>
-            node.type === "blob" &&
-            /\.(js|ts|jsx|tsx)$/i.test(node.path)
+            node.type === "blob" && /\.(js|ts|jsx|tsx)$/i.test(node.path)
         );
         setFiles(codeFiles);
       }
@@ -135,11 +149,22 @@ export default function RepoPicker({
     branch: string,
     filePath: string
   ) => {
+    console.log("fetchFileContent called with:", {
+      repoFullName,
+      branch,
+      filePath,
+    });
+    if (!filePath) {
+      console.error("filePath is missing in fetchFileContent!");
+      return;
+    }
     setLoading(true);
     try {
       const [owner, repo] = repoFullName.split("/");
       const response = await fetch(
-        `http://localhost:3001/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(filePath)}&ref=${branch}`,
+        `http://localhost:3001/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(
+          filePath
+        )}&ref=${branch}`,
         { credentials: "include" }
       );
       if (response.ok) {
@@ -147,7 +172,14 @@ export default function RepoPicker({
         // Decode base64 content (GitHub API returns content as base64)
         if (data.content && data.encoding === "base64") {
           const content = atob(data.content.replace(/\s/g, ""));
-          onFileSelect(content, filePath);
+          const repoInfo = {
+            owner,
+            repo,
+            ref: branch,
+            filePath: filePath, // Use the parameter, not a variable
+          };
+          console.log("Calling onFileSelect with repoInfo:", repoInfo);
+          onFileSelect(content, filePath, repoInfo);
         } else {
           console.error("Unexpected content format:", data);
         }
@@ -162,7 +194,9 @@ export default function RepoPicker({
   return (
     <div style={{ marginBottom: "20px" }}>
       <div style={{ marginBottom: "12px" }}>
-        <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+        <label
+          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+        >
           Select Repo:
         </label>
         <select
@@ -181,7 +215,9 @@ export default function RepoPicker({
 
       {selectedRepo && (
         <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+          <label
+            style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+          >
             Select Branch:
           </label>
           <select
@@ -201,7 +237,9 @@ export default function RepoPicker({
 
       {selectedRepo && selectedBranch && (
         <div style={{ marginBottom: "12px" }}>
-          <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+          <label
+            style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
+          >
             Select File:
           </label>
           <select
@@ -220,8 +258,9 @@ export default function RepoPicker({
         </div>
       )}
 
-      {loading && <div style={{ padding: "10px", color: "#666" }}>Loading...</div>}
+      {loading && (
+        <div style={{ padding: "10px", color: "#666" }}>Loading...</div>
+      )}
     </div>
   );
 }
-
