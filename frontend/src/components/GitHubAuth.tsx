@@ -16,7 +16,9 @@ interface Props {
 }
 
 export default function GitHubAuth({ onAuthChange }: Props) {
-  const [authStatus, setAuthStatus] = useState<AuthStatus>({ authenticated: false });
+  const [authStatus, setAuthStatus] = useState<AuthStatus>({
+    authenticated: false,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,7 +65,14 @@ export default function GitHubAuth({ onAuthChange }: Props) {
 
   if (authStatus.authenticated && authStatus.user) {
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px",
+        }}
+      >
         {authStatus.user.avatar_url && (
           <img
             src={authStatus.user.avatar_url}
@@ -72,7 +81,10 @@ export default function GitHubAuth({ onAuthChange }: Props) {
           />
         )}
         <span>{authStatus.user.login}</span>
-        <button onClick={handleLogout} style={{ padding: "6px 12px", cursor: "pointer" }}>
+        <button
+          onClick={handleLogout}
+          style={{ padding: "6px 12px", cursor: "pointer" }}
+        >
           Logout
         </button>
       </div>
@@ -98,4 +110,3 @@ export default function GitHubAuth({ onAuthChange }: Props) {
     </div>
   );
 }
-
