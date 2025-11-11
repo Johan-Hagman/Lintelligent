@@ -2,13 +2,22 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import path from "path";
+import { fileURLToPath } from "url";
 import { reviewCode as aiReviewCode } from "../ai/aiService.js";
+import { repoContextService } from "./repoContextService.js";
 
 export interface MCPReviewParams {
   code: string;
   language?: string;
   reviewType?: string;
   apiKey: string; // Required for AI service
+  repoContext?: {
+    owner: string;
+    repo: string;
+    ref: string;
+    filePath: string;
+    accessToken: string;
+  };
 }
 
 export interface MCPReviewResult {
@@ -25,14 +34,15 @@ export interface MCPReviewResult {
 
 class MCPService {
   private client: Client | null = null;
+  private readonly moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
   async connect(): Promise<void> {
     if (this.client) return; // Already connected
 
     // Path to the MCP server
-    const mcpServerPath = path.join(
-      process.cwd(),
-      "../mcp-servers/code-standards"
+    const mcpServerPath = path.resolve(
+      this.moduleDir,
+      "../../../../mcp-servers/code-standards"
     );
 
     const transport = new StdioClientTransport({
@@ -112,23 +122,32 @@ class MCPService {
       if (compressedStandards) parts.push(`Standards: ${compressedStandards}`);
       if (compressedSecurity) parts.push(`Security: ${compressedSecurity}`);
       mcpContext = parts.length > 0 ? parts.join(" | ") : "";
-
-      console.log(
-        "MCP Context compressed:",
-        mcpContext.substring(0, 100) + "..."
-      );
     } catch (error) {
       console.warn("Could not get MCP context:", error);
       // Continue without context if MCP tools fail
     }
 
-    // Run AI review with MCP context
+    // Fetch repo context if available
+    let repoContext = "";
+    if (params.repoContext) {
+      try {
+        repoContext = await repoContextService.getProjectContext(
+          params.repoContext
+        );
+      } catch (error) {
+        console.warn("Could not get repo context:", error);
+        // Continue without repo context if it fails
+      }
+    }
+
+    // Run AI review with MCP context and repo context
     const aiResult = await aiReviewCode({
       apiKey: params.apiKey,
       code: params.code,
       language: params.language || "javascript",
       reviewType: params.reviewType || "best-practices",
       mcpContext: mcpContext,
+      repoContext: repoContext,
     });
 
     // Return AI result directly (no static analysis combination)
