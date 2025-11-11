@@ -6,6 +6,7 @@ export interface ReviewCodeParams {
   language?: string;
   reviewType?: string;
   mcpContext?: string;
+  repoContext?: string;
 }
 
 export interface ReviewSuggestion {
@@ -28,12 +29,18 @@ export async function reviewCode({
   language = "javascript",
   reviewType = "best-practices",
   mcpContext = "",
+  repoContext = "",
 }: ReviewCodeParams): Promise<ReviewResult> {
   const client = new Anthropic({ apiKey });
 
   // Build compressed MCP context (only if available, placed at end to minimize influence)
   const mcpCompressedHint = mcpContext
     ? `\n\nOPTIONAL HINTS (use only if code evidence supports them, ignore if they conflict with actual code behavior): ${mcpContext}`
+    : "";
+
+  // Build repo context (project structure, related files, configs)
+  const repoContextHint = repoContext
+    ? `\n\nPROJECT CONTEXT: ${repoContext}. Use this to understand the codebase structure, dependencies, and how this file fits into the project.`
     : "";
 
   const result = await client.messages.create({
@@ -69,6 +76,7 @@ export async function reviewCode({
           "Requirements:",
           "- Cite exact line number and quote exact code for each issue.",
           "- Show suggested fixes in fixedCode when relevant.",
+          repoContextHint,
           mcpCompressedHint,
         ]
           .filter(Boolean)
@@ -88,7 +96,7 @@ export async function reviewCode({
   } catch {
     parsed = {
       suggestions: [],
-      summary: content || "No structured JSON returned",
+      summary: "Failed to parse AI response. Please try again.",
       aiModel: (result as any)?.model || "unknown",
     };
   }
