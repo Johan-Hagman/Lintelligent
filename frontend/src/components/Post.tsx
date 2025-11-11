@@ -19,6 +19,12 @@ function Post() {
   const [error, setError] = useState("");
   const [rated, setRated] = useState<number | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [repoInfo, setRepoInfo] = useState<{
+    owner: string;
+    repo: string;
+    ref: string;
+    filePath: string;
+  } | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -38,12 +44,17 @@ function Post() {
     }
   };
 
-  const handleFileSelect = (content: string, path: string) => {
+  const handleFileSelect = (
+    content: string,
+    path: string,
+    repoInfo?: { owner: string; repo: string; ref: string; filePath: string }
+  ) => {
     setCode(content);
     setFeedback(null);
     setReviewId(null);
     setRated(null);
     setError("");
+    setRepoInfo(repoInfo || null);
     // Auto-detect language from file extension
     if (path.endsWith(".ts") || path.endsWith(".tsx")) {
       setLanguage("typescript");
@@ -95,23 +106,44 @@ function Post() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           code: code,
           language: language,
           reviewType: "best-practices",
+          ...(repoInfo && {
+            repoInfo: {
+              owner: repoInfo.owner,
+              repo: repoInfo.repo,
+              ref: repoInfo.ref,
+              filePath: repoInfo.filePath,
+            },
+          }),
         }),
       });
 
+      // Debug: log what we're sending
+      console.log("Sending review request with repoInfo:", repoInfo);
+
       if (!response.ok) {
-        throw new Error("Failed to review code");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `Server error: ${response.status} ${response.statusText}`
+        );
       }
 
       const data = await response.json();
       setFeedback(data.feedback);
       setReviewId(data.id); // Save the review ID for rating
     } catch (err) {
-      console.error("Error:", err);
-      setError("Failed to review code. Make sure the backend is running.");
+      console.error("Review error:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to review code";
+      setError(
+        errorMessage ||
+          "Failed to review code. Make sure the backend is running."
+      );
     } finally {
       setLoading(false);
     }
@@ -127,7 +159,13 @@ function Post() {
       }}
     >
       <div style={{ marginBottom: "32px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div>
             <h1
               style={{
@@ -151,12 +189,18 @@ function Post() {
       {/* Tabs */}
       <div style={{ marginBottom: "20px", borderBottom: "1px solid #e5e7eb" }}>
         <button
-          onClick={() => setActiveTab("paste")}
+          onClick={() => {
+            setActiveTab("paste");
+            setRepoInfo(null); // Clear repo info when switching to paste tab
+          }}
           style={{
             padding: "10px 20px",
             border: "none",
             backgroundColor: "transparent",
-            borderBottom: activeTab === "paste" ? "2px solid #3b82f6" : "2px solid transparent",
+            borderBottom:
+              activeTab === "paste"
+                ? "2px solid #3b82f6"
+                : "2px solid transparent",
             color: activeTab === "paste" ? "#3b82f6" : "#6b7280",
             cursor: "pointer",
             fontWeight: activeTab === "paste" ? "600" : "400",
@@ -171,8 +215,16 @@ function Post() {
             padding: "10px 20px",
             border: "none",
             backgroundColor: "transparent",
-            borderBottom: activeTab === "repo" ? "2px solid #3b82f6" : "2px solid transparent",
-            color: activeTab === "repo" ? "#3b82f6" : isAuthenticated ? "#6b7280" : "#d1d5db",
+            borderBottom:
+              activeTab === "repo"
+                ? "2px solid #3b82f6"
+                : "2px solid transparent",
+            color:
+              activeTab === "repo"
+                ? "#3b82f6"
+                : isAuthenticated
+                ? "#6b7280"
+                : "#d1d5db",
             cursor: isAuthenticated ? "pointer" : "not-allowed",
             fontWeight: activeTab === "repo" ? "600" : "400",
             opacity: isAuthenticated ? 1 : 0.5,
@@ -195,7 +247,11 @@ function Post() {
         {activeTab === "paste" ? (
           <>
             <LanguageSelector value={language} onChange={setLanguage} />
-            <CodeEditorPane code={code} onChange={setCode} language={language} />
+            <CodeEditorPane
+              code={code}
+              onChange={setCode}
+              language={language}
+            />
             <div
               style={{
                 display: "flex",
@@ -213,7 +269,13 @@ function Post() {
         ) : (
           <>
             {!isAuthenticated ? (
-              <div style={{ padding: "20px", textAlign: "center", color: "#6b7280" }}>
+              <div
+                style={{
+                  padding: "20px",
+                  textAlign: "center",
+                  color: "#6b7280",
+                }}
+              >
                 Please connect GitHub to review files from repositories.
               </div>
             ) : (
@@ -222,9 +284,16 @@ function Post() {
                 {code && (
                   <>
                     <div style={{ marginTop: "20px" }}>
-                      <LanguageSelector value={language} onChange={setLanguage} />
+                      <LanguageSelector
+                        value={language}
+                        onChange={setLanguage}
+                      />
                     </div>
-                    <CodeEditorPane code={code} onChange={setCode} language={language} />
+                    <CodeEditorPane
+                      code={code}
+                      onChange={setCode}
+                      language={language}
+                    />
                     <div
                       style={{
                         display: "flex",
