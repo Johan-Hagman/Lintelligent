@@ -370,7 +370,13 @@ app.post("/api/review", async (req: Request, res: Response) => {
       code,
       language = "javascript",
       reviewType = "best-practices",
+      repoInfo,
     } = req.body;
+
+    console.log(
+      "Backend received repoInfo:",
+      JSON.stringify(repoInfo, null, 2)
+    );
 
     if (!code) {
       return res.status(400).json({ error: "Code is required" });
@@ -381,12 +387,72 @@ app.post("/api/review", async (req: Request, res: Response) => {
       return res.status(500).json({ error: "AI API key not configured" });
     }
 
-    const result = await mcpService.reviewCode({
-      code,
-      language,
-      reviewType,
-      apiKey,
-    });
+    // If repoInfo is provided, get access token from session
+    let repoContext:
+      | {
+          owner: string;
+          repo: string;
+          ref: string;
+          filePath: string;
+          accessToken: string;
+        }
+      | undefined;
+
+    // Only require GitHub auth if repoInfo is actually provided with all required fields
+    if (
+      repoInfo &&
+      repoInfo.owner &&
+      repoInfo.repo &&
+      repoInfo.ref &&
+      repoInfo.filePath
+    ) {
+      const session = getSession(req);
+      if (!session || !session.ghToken) {
+        return res
+          .status(401)
+          .json({ error: "GitHub authentication required for repo reviews" });
+      }
+
+      // Validate all fields are strings (not undefined/null)
+      if (
+        typeof repoInfo.owner !== "string" ||
+        typeof repoInfo.repo !== "string" ||
+        typeof repoInfo.ref !== "string" ||
+        typeof repoInfo.filePath !== "string"
+      ) {
+        console.warn("Invalid repoInfo fields:", repoInfo);
+        return res
+          .status(400)
+          .json({ error: "Invalid repository information" });
+      }
+
+      repoContext = {
+        owner: repoInfo.owner,
+        repo: repoInfo.repo,
+        ref: repoInfo.ref,
+        filePath: repoInfo.filePath,
+        accessToken: session.ghToken,
+      };
+    }
+
+    let result;
+    try {
+      result = await mcpService.reviewCode({
+        code,
+        language,
+        reviewType,
+        apiKey,
+        repoContext,
+      });
+    } catch (error) {
+      console.error("MCP review error:", error);
+      return res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to review code. Check server logs for details.",
+      });
+    }
 
     // Generate review ID
     const reviewId = uuidv4();
