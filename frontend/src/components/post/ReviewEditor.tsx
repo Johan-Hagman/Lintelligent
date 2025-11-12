@@ -27,16 +27,9 @@ export default function ReviewEditor({
         <LanguageSelector value={language} onChange={onLanguageChange} />
       )}
       <CodeEditorPane code={code} onChange={onCodeChange} language={language} />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "16px",
-        }}
-      >
+      <div className="mt-4 flex justify-center">
         <ReviewButton onClick={onSubmit} disabled={loading} loading={loading} />
       </div>
     </>
   );
 }
-

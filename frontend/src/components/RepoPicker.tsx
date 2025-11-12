@@ -191,18 +191,19 @@ export default function RepoPicker({
     }
   };
 
+  const selectClasses =
+    "block w-full rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 text-sm text-text shadow-sm transition focus:border-primary focus:outline-none focus-visible:ring-3 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60";
+
   return (
-    <div style={{ marginBottom: "20px" }}>
-      <div style={{ marginBottom: "12px" }}>
-        <label
-          style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
-        >
-          Select Repo:
+    <div className="mb-6 space-y-4">
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-text-muted">
+          Select Repo
         </label>
         <select
           value={selectedRepo || ""}
           onChange={(e) => setSelectedRepo(e.target.value || null)}
-          style={{ width: "100%", padding: "8px", fontSize: "14px" }}
+          className={selectClasses}
         >
           <option value="">-- Select Repository --</option>
           {repos.map((repo) => (
@@ -214,17 +215,15 @@ export default function RepoPicker({
       </div>
 
       {selectedRepo && (
-        <div style={{ marginBottom: "12px" }}>
-          <label
-            style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
-          >
-            Select Branch:
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-text-muted">
+            Select Branch
           </label>
           <select
             value={selectedBranch || ""}
             onChange={(e) => setSelectedBranch(e.target.value || null)}
             disabled={loading || branches.length === 0}
-            style={{ width: "100%", padding: "8px", fontSize: "14px" }}
+            className={selectClasses}
           >
             {branches.map((branch) => (
               <option key={branch.name} value={branch.name}>
@@ -236,17 +235,15 @@ export default function RepoPicker({
       )}
 
       {selectedRepo && selectedBranch && (
-        <div style={{ marginBottom: "12px" }}>
-          <label
-            style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}
-          >
-            Select File:
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-text-muted">
+            Select File
           </label>
           <select
             value={selectedFile || ""}
             onChange={(e) => setSelectedFile(e.target.value || null)}
             disabled={loading || files.length === 0}
-            style={{ width: "100%", padding: "8px", fontSize: "14px" }}
+            className={selectClasses}
           >
             <option value="">-- Select File --</option>
             {files.map((file) => (
@@ -259,7 +256,9 @@ export default function RepoPicker({
       )}
 
       {loading && (
-        <div style={{ padding: "10px", color: "#666" }}>Loading...</div>
+        <div className="rounded-lg border border-divider/60 bg-surface-tinted/40 px-4 py-3 text-sm text-text-muted">
+          Loading...
+        </div>
       )}
     </div>
   );

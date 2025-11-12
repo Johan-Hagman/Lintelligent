@@ -11,46 +11,38 @@ export default function ReviewTabs({
   onSelect,
   isAuthenticated,
 }: ReviewTabsProps) {
+  const baseButtonClasses =
+    "relative border-b-2 border-transparent px-5 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
+
   return (
-    <nav style={{ marginBottom: "20px", borderBottom: "1px solid #e5e7eb" }}>
+    <nav className="mb-5 border-b border-divider/70">
       <button
+        type="button"
         onClick={() => onSelect("paste")}
-        style={{
-          padding: "10px 20px",
-          border: "none",
-          backgroundColor: "transparent",
-          borderBottom:
-            activeTab === "paste" ? "2px solid #3b82f6" : "2px solid transparent",
-          color: activeTab === "paste" ? "#3b82f6" : "#6b7280",
-          cursor: "pointer",
-          fontWeight: activeTab === "paste" ? "600" : "400",
-        }}
+        className={`${baseButtonClasses} ${
+          activeTab === "paste"
+            ? "border-primary text-primary"
+            : "text-text-subtle hover:text-text"
+        }`}
+        aria-pressed={activeTab === "paste"}
       >
         Paste Code
       </button>
       <button
+        type="button"
         onClick={() => onSelect("repo")}
         disabled={!isAuthenticated}
-        style={{
-          padding: "10px 20px",
-          border: "none",
-          backgroundColor: "transparent",
-          borderBottom:
-            activeTab === "repo" ? "2px solid #3b82f6" : "2px solid transparent",
-          color:
-            activeTab === "repo"
-              ? "#3b82f6"
-              : isAuthenticated
-              ? "#6b7280"
-              : "#d1d5db",
-          cursor: isAuthenticated ? "pointer" : "not-allowed",
-          fontWeight: activeTab === "repo" ? "600" : "400",
-          opacity: isAuthenticated ? 1 : 0.5,
-        }}
+        className={`${baseButtonClasses} ${
+          activeTab === "repo"
+            ? "border-primary text-primary"
+            : isAuthenticated
+            ? "text-text-subtle hover:text-text"
+            : "cursor-not-allowed text-text-muted opacity-60"
+        }`}
+        aria-pressed={activeTab === "repo"}
       >
         Review from Repo
       </button>
     </nav>
   );
 }
-

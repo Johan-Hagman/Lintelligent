@@ -28,13 +28,7 @@ export default function RepoReviewContent({
 }: RepoReviewContentProps) {
   if (!isAuthenticated) {
     return (
-      <div
-        style={{
-          padding: "20px",
-          textAlign: "center",
-          color: "#6b7280",
-        }}
-      >
+      <div className="rounded-xl border border-divider/70 bg-surface-tinted/60 p-6 text-center text-text-subtle">
         Please connect GitHub to review files from repositories.
       </div>
     );
@@ -44,7 +38,7 @@ export default function RepoReviewContent({
     <>
       <RepoPicker onFileSelect={onFileSelect} />
       {code && (
-        <div style={{ marginTop: "20px" }}>
+        <div className="mt-6 rounded-xl border border-divider/60 bg-surface-raised/60 p-4">
           <ReviewEditor
             code={code}
             language={language}
@@ -58,4 +52,3 @@ export default function RepoReviewContent({
     </>
   );
 }
-
