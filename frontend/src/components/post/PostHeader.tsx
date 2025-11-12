@@ -6,27 +6,13 @@ interface PostHeaderProps {
 
 export default function PostHeader({ onAuthChange }: PostHeaderProps) {
   return (
-    <header style={{ marginBottom: "32px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <header className="mb-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1
-            style={{
-              margin: "0 0 8px 0",
-              fontSize: "32px",
-              fontWeight: "700",
-              color: "#111827",
-              letterSpacing: "-0.5px",
-            }}
-          >
+          <h1 className="text-3xl font-semibold tracking-tight text-text sm:text-4xl">
             Lintelligent
           </h1>
-          <p style={{ margin: "0", color: "#6b7280", fontSize: "16px" }}>
+          <p className="mt-2 text-base text-text-subtle">
             AI-powered code review with project context
           </p>
         </div>
@@ -35,4 +21,3 @@ export default function PostHeader({ onAuthChange }: PostHeaderProps) {
     </header>
   );
 }
-
