@@ -158,14 +158,7 @@ function Post() {
   };
 
   return (
-    <div
-      style={{
-        padding: "24px",
-        maxWidth: "900px",
-        margin: "0 auto",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-10 text-text sm:px-6 lg:px-8">
       <PostHeader onAuthChange={setIsAuthenticated} />
 
       <ReviewTabs
@@ -174,16 +167,7 @@ function Post() {
         isAuthenticated={isAuthenticated}
       />
 
-      <div
-        style={{
-          backgroundColor: "white",
-          border: "1px solid #e5e7eb",
-          borderRadius: "12px",
-          padding: "24px",
-          marginBottom: "24px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        }}
-      >
+      <div className="rounded-xl border border-divider bg-surface shadow-surface p-6 sm:p-8">
         {activeTab === "paste" ? (
           <PasteReviewContent
             code={code}
