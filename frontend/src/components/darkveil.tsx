@@ -94,8 +94,10 @@ export default function DarkVeil({
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const canvas = ref.current as HTMLCanvasElement;
-    const parent = canvas.parentElement as HTMLElement;
+    const canvas = ref.current;
+    if (!canvas) {
+      return;
+    }
 
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio, 2),
@@ -122,8 +124,8 @@ export default function DarkVeil({
     const mesh = new Mesh(gl, { geometry, program });
 
     const resize = () => {
-      const w = parent.clientWidth,
-        h = parent.clientHeight;
+      const w = window.innerWidth || document.documentElement.clientWidth;
+      const h = window.innerHeight || document.documentElement.clientHeight;
       renderer.setSize(w * resolutionScale, h * resolutionScale);
       program.uniforms.uResolution.value.set(w, h);
     };
@@ -161,5 +163,10 @@ export default function DarkVeil({
     warpAmount,
     resolutionScale,
   ]);
-  return <canvas ref={ref} className="w-full h-full block" />;
+  return (
+    <canvas
+      ref={ref}
+      className="pointer-events-none fixed inset-0 block h-full w-full"
+    />
+  );
 }
