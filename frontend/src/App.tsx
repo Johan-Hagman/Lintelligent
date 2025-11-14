@@ -1,30 +1,16 @@
-// App.tsx (förenklat)
 import DarkVeil from "./components/darkveil";
 import Post from "./components/Post";
 
 function App() {
   return (
-    <div
-      className="App"
-      style={{
-        position: "relative",
-        minHeight: "100vh", // gör att containern spänner över viewporten
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-        }}
-      >
+    <div className="App relative min-h-screen overflow-hidden">
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
         <DarkVeil />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1 }}>
+      <main aria-label="AI code review workspace" className="relative z-10">
         <Post />
-      </div>
+      </main>
     </div>
   );
 }
