@@ -2,16 +2,16 @@ import { useState, useEffect } from "react";
 import ErrorAlert from "./ErrorAlert";
 import Feedback from "./Feedback";
 import Rating from "./Rating";
-import PostHeader from "./post/PostHeader";
-import ReviewTabs from "./post/ReviewTabs";
-import PasteReviewContent from "./post/PasteReviewContent";
-import RepoReviewContent from "./post/RepoReviewContent";
-import { ReviewFeedback } from "./Post.types";
+import WorkspaceHeader from "./workspace/WorkspaceHeader";
+import WorkspaceTabs from "./workspace/WorkspaceTabs";
+import PasteReviewContent from "./workspace/PasteReviewContent";
+import RepoReviewContent from "./workspace/RepoReviewContent";
+import { ReviewFeedback } from "./ReviewWorkspace.types";
 
 type ReviewTab = "paste" | "repo";
 
-function Post() {
-  const [activeTab, setActiveTab] = useState<"paste" | "repo">("paste");
+function ReviewWorkspace() {
+  const [activeTab, setActiveTab] = useState<ReviewTab>("paste");
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [feedback, setFeedback] = useState<ReviewFeedback | null>(null);
@@ -109,8 +109,8 @@ function Post() {
         },
         credentials: "include",
         body: JSON.stringify({
-          code: code,
-          language: language,
+          code,
+          language,
           reviewType: "best-practices",
           ...(repoInfo && {
             repoInfo: {
@@ -162,9 +162,9 @@ function Post() {
       aria-label="Code review session"
       className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-10 text-text sm:px-6 lg:px-8"
     >
-      <PostHeader onAuthChange={setIsAuthenticated} />
+      <WorkspaceHeader onAuthChange={setIsAuthenticated} />
 
-      <ReviewTabs
+      <WorkspaceTabs
         activeTab={activeTab}
         onSelect={handleTabSelect}
         isAuthenticated={isAuthenticated}
@@ -205,4 +205,5 @@ function Post() {
     </article>
   );
 }
-export default Post;
+
+export default ReviewWorkspace;
