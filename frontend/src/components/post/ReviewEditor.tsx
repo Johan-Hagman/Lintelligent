@@ -22,14 +22,14 @@ export default function ReviewEditor({
   showLanguageSelector = true,
 }: ReviewEditorProps) {
   return (
-    <>
+    <section aria-label="Code editor" className="space-y-5">
       {showLanguageSelector && (
         <LanguageSelector value={language} onChange={onLanguageChange} />
       )}
       <CodeEditorPane code={code} onChange={onCodeChange} language={language} />
-      <div className="mt-4 flex justify-center">
+      <div className="flex justify-center">
         <ReviewButton onClick={onSubmit} disabled={loading} loading={loading} />
       </div>
-    </>
+    </section>
   );
 }

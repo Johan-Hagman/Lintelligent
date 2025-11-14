@@ -5,8 +5,13 @@ interface Props {
 export default function ErrorAlert({ message }: Props) {
   if (!message) return null;
   return (
-    <div style={{ color: "red", marginTop: "20px" }}>
+    <section
+      aria-label="Error message"
+      role="alert"
+      aria-live="assertive"
+      className="mt-5 rounded-lg border border-danger/50 bg-danger/10 px-4 py-3 text-sm text-danger"
+    >
       <strong>Error:</strong> {message}
-    </div>
+    </section>
   );
 }

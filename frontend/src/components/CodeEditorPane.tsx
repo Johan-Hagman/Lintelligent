@@ -12,14 +12,7 @@ interface Props {
 
 export default function CodeEditorPane({ code, onChange, language }: Props) {
   return (
-    <div
-      style={{
-        marginBottom: "20px",
-        border: "1px solid #d1d5db",
-        borderRadius: "8px",
-        overflow: "hidden",
-      }}
-    >
+    <div className="mb-5 overflow-hidden rounded-xl border border-divider bg-surface-raised">
       <CodeEditor
         value={code}
         onValueChange={(value) => onChange(value)}
@@ -34,15 +27,9 @@ export default function CodeEditorPane({ code, onChange, language }: Props) {
         }
         padding={15}
         placeholder="Paste your code here..."
-        style={{
-          fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
-          fontSize: 14,
-          height: "500px",
-          maxHeight: "500px",
-          overflow: "auto",
-          backgroundColor: "#1e1e1e",
-          color: "#d4d4d4",
-        }}
+        className="h-[500px] max-h-[500px] overflow-auto bg-surface-raised font-mono text-sm text-text focus:outline-none"
+        textareaClassName="focus:outline-none caret-primary"
+        preClassName="!bg-transparent !text-text !font-mono !text-sm"
       />
     </div>
   );

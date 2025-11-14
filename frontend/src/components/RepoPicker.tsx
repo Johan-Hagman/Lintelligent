@@ -195,7 +195,7 @@ export default function RepoPicker({
     "block w-full rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 text-sm text-text shadow-sm transition focus:border-primary focus:outline-none focus-visible:ring-3 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60";
 
   return (
-    <div className="mb-6 space-y-4">
+    <section aria-label="Repository selection" className="mb-6 space-y-4">
       <div className="space-y-2">
         <label className="block text-sm font-medium text-text-muted">
           Select Repo
@@ -260,6 +260,6 @@ export default function RepoPicker({
           Loading...
         </div>
       )}
-    </div>
+    </section>
   );
 }

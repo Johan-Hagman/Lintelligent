@@ -158,7 +158,10 @@ function Post() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-10 text-text sm:px-6 lg:px-8">
+    <article
+      aria-label="Code review session"
+      className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-10 text-text sm:px-6 lg:px-8"
+    >
       <PostHeader onAuthChange={setIsAuthenticated} />
 
       <ReviewTabs
@@ -167,7 +170,10 @@ function Post() {
         isAuthenticated={isAuthenticated}
       />
 
-      <div className="rounded-xl border border-divider bg-surface shadow-surface p-6 sm:p-8">
+      <section
+        aria-label="Review input panel"
+        className="rounded-xl border border-divider bg-surface shadow-surface p-6 sm:p-8"
+      >
         {activeTab === "paste" ? (
           <PasteReviewContent
             code={code}
@@ -189,15 +195,14 @@ function Post() {
             onFileSelect={handleFileSelect}
           />
         )}
-      </div>
+      </section>
 
       <ErrorAlert message={error} />
 
       {feedback && <Feedback feedback={feedback} />}
 
       <Rating visible={!!feedback} rated={rated} onRate={handleRating} />
-    </div>
+    </article>
   );
 }
-
 export default Post;

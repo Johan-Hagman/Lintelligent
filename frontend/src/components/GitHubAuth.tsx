@@ -60,30 +60,29 @@ export default function GitHubAuth({ onAuthChange }: Props) {
   };
 
   if (loading) {
-    return <div style={{ padding: "10px" }}>Loading...</div>;
+    return (
+      <div className="rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 text-sm text-text-muted">
+        Checking GitHub status…
+      </div>
+    );
   }
 
   if (authStatus.authenticated && authStatus.user) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          padding: "10px",
-        }}
-      >
+      <div className="flex items-center gap-3 rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 shadow-sm">
         {authStatus.user.avatar_url && (
           <img
             src={authStatus.user.avatar_url}
             alt={authStatus.user.login}
-            style={{ width: "32px", height: "32px", borderRadius: "50%" }}
+            className="h-8 w-8 rounded-full"
           />
         )}
-        <span>{authStatus.user.login}</span>
+        <span className="text-sm font-medium text-text">
+          {authStatus.user.login}
+        </span>
         <button
           onClick={handleLogout}
-          style={{ padding: "6px 12px", cursor: "pointer" }}
+          className="rounded-md border border-divider bg-surface px-3 py-1.5 text-xs font-semibold text-text transition hover:border-primary hover:text-primary focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
           Logout
         </button>
@@ -92,18 +91,10 @@ export default function GitHubAuth({ onAuthChange }: Props) {
   }
 
   return (
-    <div style={{ padding: "10px" }}>
+    <div className="rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 shadow-sm">
       <a
         href="http://localhost:3001/api/auth/github/login"
-        style={{
-          display: "inline-block",
-          padding: "10px 20px",
-          backgroundColor: "#24292e",
-          color: "white",
-          textDecoration: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
+        className="inline-flex items-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-800 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
       >
         Connect GitHub
       </a>

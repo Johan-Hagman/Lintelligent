@@ -14,126 +14,46 @@ export default function Feedback({ feedback }: Props) {
   }, {} as Record<string, number>);
 
   return (
-    <div style={{ marginTop: "32px" }}>
-      <div
-        style={{
-          backgroundColor: "#f9fafb",
-          border: "1px solid #e5e7eb",
-          borderRadius: "12px",
-          padding: "20px",
-          marginBottom: "24px",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 16px 0",
-            fontSize: "24px",
-            fontWeight: "700",
-            color: "#111827",
-          }}
-        >
-          Review Results
-        </h2>
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            marginBottom: "16px",
-            flexWrap: "wrap",
-          }}
-        >
-          <span
-            style={{
-              padding: "6px 12px",
-              borderRadius: "6px",
-              backgroundColor: "#e5e7eb",
-              fontSize: "13px",
-              color: "#374151",
-            }}
-          >
+    <section aria-label="Review results" className="mt-8 space-y-6">
+      <header className="space-y-4 rounded-xl border border-divider bg-surface/80 p-6 shadow-surface backdrop-blur-sm">
+        <h2 className="text-2xl font-semibold text-text">Review Results</h2>
+        <div className="flex flex-wrap gap-3">
+          <span className="inline-flex items-center rounded-full bg-surface-raised/70 px-3 py-1 text-xs font-medium text-text-muted">
             Model: {feedback.aiModel}
           </span>
           {severityCounts.high && (
-            <span
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#fee2e2",
-                color: "#991b1b",
-                fontSize: "13px",
-                fontWeight: "500",
-              }}
-            >
+            <span className="inline-flex items-center rounded-full bg-danger/15 px-3 py-1 text-xs font-semibold text-danger">
               {severityCounts.high} High
             </span>
           )}
           {severityCounts.medium && (
-            <span
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#fef3c7",
-                color: "#92400e",
-                fontSize: "13px",
-                fontWeight: "500",
-              }}
-            >
+            <span className="inline-flex items-center rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-foreground">
               {severityCounts.medium} Medium
             </span>
           )}
           {severityCounts.low && (
-            <span
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                backgroundColor: "#d1fae5",
-                color: "#065f46",
-                fontSize: "13px",
-                fontWeight: "500",
-              }}
-            >
+            <span className="inline-flex items-center rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
               {severityCounts.low} Low
             </span>
           )}
         </div>
-        <div
-          style={{
-            padding: "16px",
-            backgroundColor: "white",
-            borderRadius: "8px",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <p
-            style={{
-              margin: "0",
-              fontSize: "15px",
-              lineHeight: "1.6",
-              color: "#374151",
-            }}
-          >
+        <div className="rounded-lg border border-divider bg-surface p-4">
+          <p className="text-sm leading-relaxed text-text">
             {feedback.summary}
           </p>
         </div>
-      </div>
+      </header>
 
       {feedback.suggestions.length > 0 && (
-        <div>
-          <h3
-            style={{
-              margin: "0 0 16px 0",
-              fontSize: "20px",
-              fontWeight: "600",
-              color: "#111827",
-            }}
-          >
+        <section aria-label="Suggested improvements" className="space-y-4">
+          <h3 className="text-xl font-semibold text-text">
             Suggestions ({feedback.suggestions.length})
           </h3>
           {feedback.suggestions.map((suggestion, index) => (
             <SuggestionItem key={index} suggestion={suggestion} />
           ))}
-        </div>
+        </section>
       )}
-    </div>
+    </section>
   );
 }
