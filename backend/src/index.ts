@@ -179,7 +179,7 @@ app.get("/api/auth/github/callback", async (req: Request, res: Response) => {
 app.get("/api/auth/me", (req: Request, res: Response) => {
   const session = getSession(req);
   if (!session) {
-    return res.status(401).json({ authenticated: false });
+    return res.json({ authenticated: false });
   }
   res.json({
     authenticated: true,
