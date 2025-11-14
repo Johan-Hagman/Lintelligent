@@ -7,61 +7,40 @@ interface Props {
 export default function Rating({ visible, rated, onRate }: Props) {
   if (!visible) return null;
   return (
-    <div
-      style={{
-        marginTop: "30px",
-        padding: "20px",
-        borderTop: "1px solid #e5e7eb",
-      }}
+    <section
+      aria-label="Review rating"
+      className="mt-8 border-t border-divider pt-6"
     >
       {rated === null ? (
-        <div>
-          <p style={{ marginBottom: "15px", fontSize: "16px" }}>
-            <strong>Was this review helpful?</strong>
-          </p>
-          <button
-            onClick={() => onRate(1)}
-            style={{
-              padding: "10px 20px",
-              marginRight: "10px",
-              fontSize: "16px",
-              cursor: "pointer",
-              backgroundColor: "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-            }}
-          >
-            👍 Helpful
-          </button>
-          <button
-            onClick={() => onRate(-1)}
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              cursor: "pointer",
-              backgroundColor: "#ef4444",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-            }}
-          >
-            👎 Not Helpful
-          </button>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-text">
+            Was this review helpful?
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => onRate(1)}
+              className="inline-flex items-center rounded-lg bg-success px-5 py-2 text-base font-semibold text-success-foreground transition hover:bg-success/90 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+              👍 Helpful
+            </button>
+            <button
+              onClick={() => onRate(-1)}
+              className="inline-flex items-center rounded-lg bg-danger px-5 py-2 text-base font-semibold text-danger-foreground transition hover:bg-danger/90 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+              👎 Not Helpful
+            </button>
+          </div>
         </div>
       ) : (
-        <div
-          style={{
-            padding: "15px",
-            backgroundColor: "#f0fdf4",
-            border: "1px solid #86efac",
-            borderRadius: "5px",
-          }}
-        >
-          <strong>✓ Thanks for your feedback!</strong>
-          {rated === 1 ? " Glad it was helpful!" : " We'll work on improving!"}
+        <div className="rounded-lg border border-success/40 bg-success/10 px-5 py-4 text-success">
+          <h2 className="mb-1 text-lg font-semibold">
+            Thanks for your feedback!
+          </h2>
+          <p className="text-sm text-success/80">
+            {rated === 1 ? "Glad it was helpful!" : "We'll work on improving!"}
+          </p>
         </div>
       )}
-    </div>
+    </section>
   );
 }
