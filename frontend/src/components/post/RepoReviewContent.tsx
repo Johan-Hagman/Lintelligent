@@ -28,17 +28,23 @@ export default function RepoReviewContent({
 }: RepoReviewContentProps) {
   if (!isAuthenticated) {
     return (
-      <div className="rounded-xl border border-divider/70 bg-surface-tinted/60 p-6 text-center text-text-subtle">
+      <section
+        aria-label="GitHub connection required"
+        className="rounded-xl border border-divider/70 bg-surface-tinted/60 p-6 text-center text-text-subtle"
+      >
         Please connect GitHub to review files from repositories.
-      </div>
+      </section>
     );
   }
 
   return (
-    <>
+    <section aria-label="Review code from repository">
       <RepoPicker onFileSelect={onFileSelect} />
       {code && (
-        <div className="mt-6 rounded-xl border border-divider/60 bg-surface-raised/60 p-4">
+        <section
+          aria-label="Selected repository code editor"
+          className="mt-6 rounded-xl border border-divider/60 bg-surface-raised/60 p-4"
+        >
           <ReviewEditor
             code={code}
             language={language}
@@ -47,8 +53,8 @@ export default function RepoReviewContent({
             loading={loading}
             onSubmit={onSubmit}
           />
-        </div>
+        </section>
       )}
-    </>
+    </section>
   );
 }
