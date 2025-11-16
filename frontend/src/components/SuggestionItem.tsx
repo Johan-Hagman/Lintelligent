@@ -1,97 +1,92 @@
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { ReviewSuggestion } from "./ReviewWorkspace.types";
+import { Badge } from "./ui/Badge";
+import { Button } from "./ui/Button";
+import { Card } from "./ui/Card";
 
 interface Props {
   suggestion: ReviewSuggestion;
 }
 
+const severityStyles: Record<
+  ReviewSuggestion["severity"],
+  {
+    badgeTone: ComponentProps<typeof Badge>["tone"];
+    cardClasses: string;
+    headingClass: string;
+  }
+> = {
+  high: {
+    badgeTone: "danger",
+    cardClasses: "border-danger/60 border-l-4 border-l-danger bg-danger/5",
+    headingClass: "text-danger",
+  },
+  medium: {
+    badgeTone: "warning",
+    cardClasses: "border-warning/60 border-l-4 border-l-warning bg-warning/5",
+    headingClass: "text-warning",
+  },
+  low: {
+    badgeTone: "success",
+    cardClasses: "border-success/60 border-l-4 border-l-success bg-success/5",
+    headingClass: "text-success",
+  },
+};
+
 export default function SuggestionItem({ suggestion }: Props) {
   const [copied, setCopied] = useState(false);
-
-  const severityClasses: Record<
-    ReviewSuggestion["severity"],
-    {
-      container: string;
-      chip: string;
-      heading: string;
-    }
-  > = {
-    high: {
-      container: "border-danger/50 border-l-danger bg-danger/10 text-danger",
-      chip: "bg-danger text-danger-foreground",
-      heading: "text-danger",
-    },
-    medium: {
-      container:
-        "border-warning/50 border-l-warning bg-warning/10 text-warning-foreground",
-      chip: "bg-warning text-warning-foreground",
-      heading: "text-warning-foreground",
-    },
-    low: {
-      container:
-        "border-success/50 border-l-success bg-success/10 text-success",
-      chip: "bg-success text-success-foreground",
-      heading: "text-success",
-    },
-  };
+  const severity = severityStyles[suggestion.severity] ?? severityStyles.low;
 
   const handleCopyFix = async () => {
-    if (suggestion.fixedCode) {
+    if (!suggestion.fixedCode) return;
+    try {
       await navigator.clipboard.writeText(suggestion.fixedCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy fix", error);
     }
   };
 
-  const severity = severityClasses[suggestion.severity] || severityClasses.low;
-
   return (
-    <article
-      aria-label={`Suggestion at line ${suggestion.line}`}
-      className={`mb-3 rounded-xl border border-l-4 p-4 shadow-sm backdrop-blur-sm ${severity.container}`}
-    >
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${severity.chip}`}
-        >
-          {suggestion.severity}
-        </span>
-        <span className="inline-flex items-center rounded-lg bg-surface/60 px-3 py-1 text-xs font-medium text-text">
-          Line {suggestion.line}
-        </span>
-      </div>
-
-      <div className="space-y-2">
-        <h3 className={`text-lg font-semibold text-text ${severity.heading}`}>
-          {suggestion.message}
-        </h3>
-        <p className="text-sm leading-relaxed text-text-muted">
-          {suggestion.reason}
-        </p>
-      </div>
-
-      {suggestion.fixedCode && (
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <strong className="text-sm font-semibold text-text">
-              Suggested Fix
-            </strong>
-            <button
-              onClick={handleCopyFix}
-              className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
-                copied
-                  ? "border-success bg-success text-success-foreground"
-                  : "border-divider bg-surface text-text hover:border-primary hover:text-primary"
-              }`}
-            >
-              {copied ? "✓ Copied!" : "Copy Fix"}
-            </button>
-          </div>
-          <pre className="max-h-80 overflow-auto rounded-lg border border-divider bg-surface-raised px-4 py-3 text-xs leading-6 text-text">
-            {suggestion.fixedCode}
-          </pre>
+    <article aria-label={`Suggestion at line ${suggestion.line}`}>
+      <Card tone="subtle" padding="md" className={severity.cardClasses}>
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <Badge tone={severity.badgeTone} className="uppercase tracking-wide">
+            {suggestion.severity}
+          </Badge>
+          <Badge tone="muted">Line {suggestion.line}</Badge>
         </div>
-      )}
+
+        <div className="space-y-2">
+          <h3 className={`text-lg font-semibold ${severity.headingClass}`}>
+            {suggestion.message}
+          </h3>
+          <p className="text-sm leading-relaxed text-text-muted">
+            {suggestion.reason}
+          </p>
+        </div>
+
+        {suggestion.fixedCode && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <strong className="text-sm font-semibold text-text">
+                Suggested Fix
+              </strong>
+              <Button
+                variant={copied ? "success" : "secondary"}
+                size="sm"
+                onClick={handleCopyFix}
+              >
+                {copied ? "✓ Copied!" : "Copy Fix"}
+              </Button>
+            </div>
+            <pre className="max-h-80 overflow-auto rounded-lg border border-divider bg-surface-raised px-4 py-3 text-xs leading-6 text-text">
+              {suggestion.fixedCode}
+            </pre>
+          </div>
+        )}
+      </Card>
     </article>
   );
 }

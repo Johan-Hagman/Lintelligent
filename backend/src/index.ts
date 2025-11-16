@@ -531,7 +531,11 @@ app.patch("/api/review/:id/rating", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`API Server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`API Server running on port ${PORT}`);
+  });
+}
+
+export { app };

@@ -1,4 +1,6 @@
 import { ReviewFeedback } from "./ReviewWorkspace.types";
+import { Badge } from "./ui/Badge";
+import { Card } from "./ui/Card";
 import SuggestionItem from "./SuggestionItem";
 
 interface Props {
@@ -15,34 +17,26 @@ export default function Feedback({ feedback }: Props) {
 
   return (
     <section aria-label="Review results" className="mt-8 space-y-6">
-      <header className="space-y-4 rounded-xl border border-divider bg-surface/80 p-6 shadow-surface backdrop-blur-sm">
+      <Card tone="muted" padding="lg" className="space-y-4 backdrop-blur-sm">
         <h2 className="text-2xl font-semibold text-text">Review Results</h2>
         <div className="flex flex-wrap gap-3">
-          <span className="inline-flex items-center rounded-full bg-surface-raised/70 px-3 py-1 text-xs font-medium text-text-muted">
-            Model: {feedback.aiModel}
-          </span>
+          <Badge tone="muted">Model: {feedback.aiModel}</Badge>
           {severityCounts.high && (
-            <span className="inline-flex items-center rounded-full bg-danger/15 px-3 py-1 text-xs font-semibold text-danger">
-              {severityCounts.high} High
-            </span>
+            <Badge tone="danger">{severityCounts.high} High</Badge>
           )}
           {severityCounts.medium && (
-            <span className="inline-flex items-center rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-foreground">
-              {severityCounts.medium} Medium
-            </span>
+            <Badge tone="warning">{severityCounts.medium} Medium</Badge>
           )}
           {severityCounts.low && (
-            <span className="inline-flex items-center rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
-              {severityCounts.low} Low
-            </span>
+            <Badge tone="success">{severityCounts.low} Low</Badge>
           )}
         </div>
-        <div className="rounded-lg border border-divider bg-surface p-4">
+        <Card tone="subtle" padding="sm" className="border-divider/60">
           <p className="text-sm leading-relaxed text-text">
             {feedback.summary}
           </p>
-        </div>
-      </header>
+        </Card>
+      </Card>
 
       {feedback.suggestions.length > 0 && (
         <section aria-label="Suggested improvements" className="space-y-4">

@@ -1,6 +1,6 @@
 import LanguageSelector from "../LanguageSelector";
 import CodeEditorPane from "../CodeEditorPane";
-import ReviewButton from "../ReviewButton";
+import { Button } from "../ui/Button";
 
 interface ReviewEditorProps {
   code: string;
@@ -28,9 +28,15 @@ export default function ReviewEditor({
       )}
       <CodeEditorPane code={code} onChange={onCodeChange} language={language} />
       <div className="flex justify-center">
-        <ReviewButton onClick={onSubmit} disabled={loading} loading={loading} />
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          isLoading={loading}
+          size="lg"
+        >
+          {loading ? "Reviewing..." : "Review Code"}
+        </Button>
       </div>
     </section>
   );
 }
-

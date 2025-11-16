@@ -1,3 +1,6 @@
+import { Button } from "./ui/Button";
+import { Card } from "./ui/Card";
+
 interface Props {
   visible: boolean;
   rated: number | null;
@@ -6,40 +9,42 @@ interface Props {
 
 export default function Rating({ visible, rated, onRate }: Props) {
   if (!visible) return null;
+
   return (
     <section
       aria-label="Review rating"
       className="mt-8 border-t border-divider pt-6"
     >
       {rated === null ? (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-text">
             Was this review helpful?
           </h2>
           <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => onRate(1)}
-              className="inline-flex items-center rounded-lg bg-success px-5 py-2 text-base font-semibold text-success-foreground transition hover:bg-success/90 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            >
+            <Button variant="success" onClick={() => onRate(1)}>
               👍 Helpful
-            </button>
-            <button
-              onClick={() => onRate(-1)}
-              className="inline-flex items-center rounded-lg bg-danger px-5 py-2 text-base font-semibold text-danger-foreground transition hover:bg-danger/90 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-            >
+            </Button>
+            <Button variant="danger" onClick={() => onRate(-1)}>
               👎 Not Helpful
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-success/40 bg-success/10 px-5 py-4 text-success">
-          <h2 className="mb-1 text-lg font-semibold">
+        <Card
+          tone="subtle"
+          padding="sm"
+          className="flex flex-wrap items-center gap-2 border-success/40 bg-success/10 text-success"
+        >
+          <span className="text-lg font-semibold">✓</span>
+          <span className="text-sm font-medium text-success">
             Thanks for your feedback!
-          </h2>
-          <p className="text-sm text-success/80">
-            {rated === 1 ? "Glad it was helpful!" : "We'll work on improving!"}
-          </p>
-        </div>
+          </span>
+          <span className="text-sm text-success/80">
+            {rated === 1
+              ? "Glad the review was helpful."
+              : "We appreciate the signal and will improve."}
+          </span>
+        </Card>
       )}
     </section>
   );
