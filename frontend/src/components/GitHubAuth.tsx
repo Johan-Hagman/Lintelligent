@@ -1,5 +1,5 @@
 import { Button } from "./ui/Button";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../helper/AuthContext";
 
 export default function GitHubAuth() {
   const { status, loading, logout } = useAuth();
