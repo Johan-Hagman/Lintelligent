@@ -22,17 +22,20 @@ const severityStyles: Record<
 > = {
   high: {
     badgeTone: "danger",
-    cardClasses: "border-danger/60 border-l-4 border-l-danger bg-danger/5",
+    cardClasses:
+      "border-danger/60 border-l-4 border-l-danger bg-surface text-danger",
     headingClass: "text-danger",
   },
   medium: {
     badgeTone: "warning",
-    cardClasses: "border-warning/60 border-l-4 border-l-warning bg-warning/5",
+    cardClasses:
+      "border-warning/60 border-l-4 border-l-warning bg-surface text-warning",
     headingClass: "text-warning",
   },
   low: {
     badgeTone: "success",
-    cardClasses: "border-success/60 border-l-4 border-l-success bg-success/5",
+    cardClasses:
+      "border-success/60 border-l-4 border-l-success bg-surface text-success",
     headingClass: "text-success",
   },
 };
@@ -40,24 +43,6 @@ const severityStyles: Record<
 export default function SuggestionItem({ suggestion }: Props) {
   const [copied, setCopied] = useState(false);
   const severity = severityStyles[suggestion.severity] ?? severityStyles.low;
-  const highlightedFix = useMemo(() => {
-    if (!suggestion.fixedCode) return "";
-    const grammar =
-      languages.typescript ?? languages.javascript ?? languages.clike;
-    const language =
-      languages.typescript !== undefined ? "typescript" : "javascript";
-
-    const escapeHtml = (code: string) =>
-      code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-    try {
-      return highlight(suggestion.fixedCode, grammar, language);
-    } catch {
-      return escapeHtml(suggestion.fixedCode);
-    }
-  }, [suggestion.fixedCode]);
-  const highlightLanguage =
-    languages.typescript !== undefined ? "typescript" : "javascript";
 
   const handleCopyFix = async () => {
     if (!suggestion.fixedCode) return;
@@ -70,9 +55,31 @@ export default function SuggestionItem({ suggestion }: Props) {
     }
   };
 
+  const highlightedFix = useMemo(() => {
+    if (!suggestion.fixedCode) return "";
+    const grammar =
+      languages.typescript || languages.javascript || languages.clike;
+    const languageId = languages.typescript ? "typescript" : "javascript";
+
+    const escapeHtml = (code: string) =>
+      code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    if (!grammar) {
+      return escapeHtml(suggestion.fixedCode);
+    }
+
+    try {
+      return highlight(suggestion.fixedCode, grammar, languageId);
+    } catch {
+      return escapeHtml(suggestion.fixedCode);
+    }
+  }, [suggestion.fixedCode]);
+
+  const highlightLanguage = languages.typescript ? "typescript" : "javascript";
+
   return (
     <article aria-label={`Suggestion at line ${suggestion.line}`}>
-      <Card tone="subtle" padding="md" className={severity.cardClasses}>
+      <Card tone="muted" padding="md" className={severity.cardClasses}>
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <Badge tone={severity.badgeTone} className="uppercase tracking-wide">
             {suggestion.severity}
