@@ -1,12 +1,6 @@
 import GitHubAuth from "../GitHubAuth";
 
-interface WorkspaceHeaderProps {
-  onAuthChange: (authenticated: boolean) => void;
-}
-
-export default function WorkspaceHeader({
-  onAuthChange,
-}: WorkspaceHeaderProps) {
+export default function WorkspaceHeader() {
   return (
     <header className="mb-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -18,7 +12,7 @@ export default function WorkspaceHeader({
             AI-powered code review with project context
           </p>
         </div>
-        <GitHubAuth onAuthChange={onAuthChange} />
+        <GitHubAuth />
       </div>
     </header>
   );
