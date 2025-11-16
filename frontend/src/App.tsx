@@ -1,5 +1,7 @@
-import DarkVeil from "./components/darkveil";
+import DarkVeil from "./components/ui/darkveil";
 import ReviewWorkspace from "./components/ReviewWorkspace";
+import Footer from "./components/footer";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
@@ -8,9 +10,12 @@ function App() {
         <DarkVeil />
       </div>
 
-      <main aria-label="AI code review workspace" className="relative z-10">
-        <ReviewWorkspace />
-      </main>
+      <AuthProvider>
+        <main aria-label="AI code review workspace" className="relative z-10">
+          <ReviewWorkspace />
+        </main>
+      </AuthProvider>
+      <Footer />
     </div>
   );
 }

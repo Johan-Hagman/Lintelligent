@@ -1,17 +1,16 @@
+import { Alert } from "./ui/Alert";
+
 interface Props {
   message: string;
 }
 
 export default function ErrorAlert({ message }: Props) {
   if (!message) return null;
+
   return (
-    <section
-      aria-label="Error message"
-      role="alert"
-      aria-live="assertive"
-      className="mt-5 rounded-lg border border-danger/50 bg-danger/10 px-4 py-3 text-sm text-danger"
-    >
-      <strong>Error:</strong> {message}
-    </section>
+    <Alert variant="error" className="mt-6" withIcon>
+      <p className="text-sm font-semibold text-danger">Something went wrong</p>
+      <p className="text-sm text-danger/80">{message}</p>
+    </Alert>
   );
 }
