@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ReviewSuggestion } from "./Post.types";
+import { ReviewSuggestion } from "./ReviewWorkspace.types";
 
 interface Props {
   suggestion: ReviewSuggestion;

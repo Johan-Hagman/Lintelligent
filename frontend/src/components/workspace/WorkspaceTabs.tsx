@@ -1,16 +1,16 @@
 type ReviewTab = "paste" | "repo";
 
-interface ReviewTabsProps {
+interface WorkspaceTabsProps {
   activeTab: ReviewTab;
   onSelect: (tab: ReviewTab) => void;
   isAuthenticated: boolean;
 }
 
-export default function ReviewTabs({
+export default function WorkspaceTabs({
   activeTab,
   onSelect,
   isAuthenticated,
-}: ReviewTabsProps) {
+}: WorkspaceTabsProps) {
   const baseButtonClasses =
     "relative border-b-2 border-transparent px-5 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-3 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
 

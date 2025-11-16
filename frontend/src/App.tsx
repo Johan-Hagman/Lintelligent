@@ -1,5 +1,5 @@
 import DarkVeil from "./components/darkveil";
-import Post from "./components/Post";
+import ReviewWorkspace from "./components/ReviewWorkspace";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       </div>
 
       <main aria-label="AI code review workspace" className="relative z-10">
-        <Post />
+        <ReviewWorkspace />
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { ReviewFeedback } from "./Post.types";
+import { ReviewFeedback } from "./ReviewWorkspace.types";
 import SuggestionItem from "./SuggestionItem";
 
 interface Props {
