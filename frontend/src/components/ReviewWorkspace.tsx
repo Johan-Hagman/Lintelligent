@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ErrorAlert from "./ErrorAlert";
 import Feedback from "./Feedback";
 import Rating from "./Rating";
@@ -7,6 +7,7 @@ import WorkspaceTabs from "./workspace/WorkspaceTabs";
 import PasteReviewContent from "./workspace/PasteReviewContent";
 import RepoReviewContent from "./workspace/RepoReviewContent";
 import { ReviewFeedback } from "./ReviewWorkspace.types";
+import { useAuth } from "../context/AuthContext";
 
 type ReviewTab = "paste" | "repo";
 
@@ -19,31 +20,13 @@ function ReviewWorkspace() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [rated, setRated] = useState<number | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [repoInfo, setRepoInfo] = useState<{
     owner: string;
     repo: string;
     ref: string;
     filePath: string;
   } | null>(null);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/api/auth/me", {
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setIsAuthenticated(data.authenticated);
-      }
-    } catch (error) {
-      console.error("Auth check failed:", error);
-    }
-  };
+  const { status: authStatus } = useAuth();
 
   const handleFileSelect = (
     content: string,
@@ -162,12 +145,12 @@ function ReviewWorkspace() {
       aria-label="Code review session"
       className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 px-4 py-10 text-text sm:px-6 lg:px-8"
     >
-      <WorkspaceHeader onAuthChange={setIsAuthenticated} />
+      <WorkspaceHeader />
 
       <WorkspaceTabs
         activeTab={activeTab}
         onSelect={handleTabSelect}
-        isAuthenticated={isAuthenticated}
+        isAuthenticated={authStatus.authenticated}
       />
 
       <section
@@ -185,7 +168,7 @@ function ReviewWorkspace() {
           />
         ) : (
           <RepoReviewContent
-            isAuthenticated={isAuthenticated}
+            isAuthenticated={authStatus.authenticated}
             code={code}
             language={language}
             onCodeChange={setCode}
