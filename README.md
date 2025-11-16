@@ -24,7 +24,7 @@ Lintelligent/
 ├── backend/           # Express API, MCP integration, Supabase client
 ├── frontend/          # React 19 app with Tailwind-inspired UI components
 ├── mcp-servers/       # Standalone MCP servers (code standards + repo context)
-└── docs/              # Project documentation (AI usage, architecture notes, etc.)
+└── docs/              # Project documentation (AI instructions, architecture notes, etc.)
 ```
 
 The backend launches the MCP servers via `npx tsx`, collects context, and injects it into the prompt sent to Claude. Supabase provides persistent storage for reviews and user feedback.
