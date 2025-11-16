@@ -103,8 +103,6 @@ Frontend tests use React Testing Library:
 yarn workspace frontend test
 ```
 
-Automated backend tests have not been added yet.
-
 ## API Overview
 
 Primary backend endpoints:
@@ -122,7 +120,7 @@ Refer to `backend/src/index.ts` for the full implementation.
 
 Two MCP servers live under `mcp-servers/`:
 
-- `code-standards`: returns high-priority coding standards and security rules (top three per category) for the selected language.
+- `code-standards`: returns high-priority coding standards and security rules for the selected language.
 - `repo-context`: gathers repository context (package.json, tsconfig, related files) to provide project awareness to the AI.
 
 The backend launches them automatically via `npx tsx src/index.ts` during a review and compresses their responses into concise hints that accompany the prompt.
@@ -145,13 +143,10 @@ create table if not exists code_reviews (
 );
 ```
 
-Optionally enforce `user_rating` to `[1, -1]` with a CHECK constraint. The Supabase client reuses a single connection and throws descriptive errors when environment variables are missing.
-
 ## Documentation
 
 Additional background and guidelines:
 
-- `docs/AI_USAGE.md` – audit trail of AI assistance during development.
 - `docs/CLAUDE.md` – detailed project plan and requirements.
 - `docs/README.md` – supplementary architecture details.
 
