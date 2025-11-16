@@ -1,8 +1,12 @@
-import { useState, type ComponentProps } from "react";
+import { useMemo, useState, type ComponentProps } from "react";
 import { ReviewSuggestion } from "./ReviewWorkspace.types";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import { highlight, languages } from "prismjs";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-typescript";
+import "prismjs/themes/prism-tomorrow.css";
 
 interface Props {
   suggestion: ReviewSuggestion;
@@ -36,6 +40,24 @@ const severityStyles: Record<
 export default function SuggestionItem({ suggestion }: Props) {
   const [copied, setCopied] = useState(false);
   const severity = severityStyles[suggestion.severity] ?? severityStyles.low;
+  const highlightedFix = useMemo(() => {
+    if (!suggestion.fixedCode) return "";
+    const grammar =
+      languages.typescript ?? languages.javascript ?? languages.clike;
+    const language =
+      languages.typescript !== undefined ? "typescript" : "javascript";
+
+    const escapeHtml = (code: string) =>
+      code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    try {
+      return highlight(suggestion.fixedCode, grammar, language);
+    } catch {
+      return escapeHtml(suggestion.fixedCode);
+    }
+  }, [suggestion.fixedCode]);
+  const highlightLanguage =
+    languages.typescript !== undefined ? "typescript" : "javascript";
 
   const handleCopyFix = async () => {
     if (!suggestion.fixedCode) return;
@@ -82,7 +104,10 @@ export default function SuggestionItem({ suggestion }: Props) {
               </Button>
             </div>
             <pre className="max-h-80 overflow-auto rounded-lg border border-divider bg-surface-raised px-4 py-3 text-xs leading-6 text-text">
-              {suggestion.fixedCode}
+              <code
+                className={`language-${highlightLanguage} block whitespace-pre font-mono text-sm`}
+                dangerouslySetInnerHTML={{ __html: highlightedFix }}
+              />
             </pre>
           </div>
         )}
