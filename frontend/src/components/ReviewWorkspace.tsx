@@ -132,12 +132,23 @@ function ReviewWorkspace() {
       setReviewId(data.id); // Save the review ID for rating
     } catch (err) {
       console.error("Review error:", err);
-      const errorMessage =
+      let errorMessage =
         err instanceof Error ? err.message : "Failed to review code";
-      setError(
-        errorMessage ||
-          "Failed to review code. Make sure the backend is running."
-      );
+
+      if (err instanceof TypeError) {
+        if (typeof navigator !== "undefined" && !navigator.onLine) {
+          errorMessage =
+            "No internet connection. Check your network and try again.";
+        } else {
+          errorMessage =
+            "Could not reach the server. Please check your connection and try again.";
+        }
+      } else if (!errorMessage) {
+        errorMessage =
+          "Something went wrong while reviewing the code. Please try again.";
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
