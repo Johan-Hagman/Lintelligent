@@ -99,7 +99,8 @@ router.get("/github/callback", async (req, res) => {
 
     const ghUser = await userRes.json();
     setSession(res, { ghToken: accessToken, ghUser });
-    res.redirect("http://localhost:3000");
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    res.redirect(frontendUrl);
   } catch (error) {
     logger.error({ err: error }, "OAuth callback error");
     res.status(500).send("Authentication failed");
