@@ -1,28 +1,45 @@
 import { Router } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 import { mcpService } from "../services/mcp/mcpService.js";
 import { supabaseService } from "../services/database/supabaseService.js";
 import { getSession } from "../utils/session.js";
+import { validate } from "../utils/validation.js";
+import { logger } from "../utils/logger.js";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+const repoInfoSchema = z.object({
+  owner: z.string().min(1),
+  repo: z.string().min(1),
+  ref: z.string().min(1),
+  filePath: z.string().min(1),
+});
+
+const reviewRequestSchema = z.object({
+  code: z.string().min(1, "Code is required"),
+  language: z.string().min(1).optional(),
+  reviewType: z.string().min(1).optional(),
+  repoInfo: repoInfoSchema.optional(),
+});
+
+type ReviewRequest = z.infer<typeof reviewRequestSchema>;
+
+const ratingParamsSchema = z.object({
+  id: z.string().uuid("Invalid review ID format"),
+});
+
+const ratingBodySchema = z.object({
+  rating: z
+    .coerce.number()
+    .refine((value) => value === 1 || value === -1, {
+      message: "Rating must be 1 (thumbs up) or -1 (thumbs down)",
+    }),
+});
+
+router.post("/", validate({ body: reviewRequestSchema }), async (req, res) => {
   try {
-    const {
-      code,
-      language = "javascript",
-      reviewType = "best-practices",
-      repoInfo,
-    } = req.body;
-
-    console.log(
-      "Backend received repoInfo:",
-      JSON.stringify(repoInfo, null, 2)
-    );
-
-    if (!code) {
-      return res.status(400).json({ error: "Code is required" });
-    }
+    const { code, language, reviewType, repoInfo } = req.body as ReviewRequest;
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -39,30 +56,12 @@ router.post("/", async (req, res) => {
         }
       | undefined;
 
-    if (
-      repoInfo &&
-      repoInfo.owner &&
-      repoInfo.repo &&
-      repoInfo.ref &&
-      repoInfo.filePath
-    ) {
+    if (repoInfo) {
       const session = getSession(req);
       if (!session || !session.ghToken) {
         return res
           .status(401)
           .json({ error: "GitHub authentication required for repo reviews" });
-      }
-
-      if (
-        typeof repoInfo.owner !== "string" ||
-        typeof repoInfo.repo !== "string" ||
-        typeof repoInfo.ref !== "string" ||
-        typeof repoInfo.filePath !== "string"
-      ) {
-        console.warn("Invalid repoInfo fields:", repoInfo);
-        return res
-          .status(400)
-          .json({ error: "Invalid repository information" });
       }
 
       repoContext = {
@@ -78,13 +77,13 @@ router.post("/", async (req, res) => {
     try {
       result = await mcpService.reviewCode({
         code,
-        language,
-        reviewType,
+        language: language ?? "javascript",
+        reviewType: reviewType ?? "best-practices",
         apiKey,
         repoContext,
       });
     } catch (error) {
-      console.error("MCP review error:", error);
+      logger.error({ err: error }, "MCP review error");
       return res.status(500).json({
         error:
           error instanceof Error
@@ -99,14 +98,14 @@ router.post("/", async (req, res) => {
       await supabaseService.saveReview({
         id: reviewId,
         code,
-        language,
-        reviewType,
+        language: language ?? "javascript",
+        reviewType: reviewType ?? "best-practices",
         aiFeedback: result,
         aiModel: result.aiModel,
       });
-      console.log("Review saved to database:", reviewId);
+      logger.info({ reviewId }, "Review saved to database");
     } catch (dbError) {
-      console.warn("Failed to save to database:", dbError);
+      logger.warn({ err: dbError }, "Failed to save review to database");
     }
 
     res.json({
@@ -115,7 +114,7 @@ router.post("/", async (req, res) => {
       createdAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Review error:", error);
+    logger.error({ err: error }, "Review error");
     res.status(500).json({
       error: "Failed to review code",
       details: error instanceof Error ? error.message : "Unknown error",
@@ -123,29 +122,19 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:id/rating", async (req, res) => {
+router.patch(
+  "/:id/rating",
+  validate({ params: ratingParamsSchema, body: ratingBodySchema }),
+  async (req, res) => {
   try {
-    const { id } = req.params;
-    const { rating } = req.body;
-
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ error: "Invalid review ID format" });
-    }
-
-    const ratingNum = Number(rating);
-    if (![1, -1].includes(ratingNum)) {
-      return res.status(400).json({
-        error: "Rating must be 1 (thumbs up) or -1 (thumbs down)",
-      });
-    }
+    const { id } = req.params as z.infer<typeof ratingParamsSchema>;
+    const { rating } = req.body as z.infer<typeof ratingBodySchema>;
 
     try {
-      await supabaseService.updateRating(id, ratingNum);
-      console.log("Rating saved:", id, ratingNum === 1 ? "👍" : "👎");
+      await supabaseService.updateRating(id, rating);
+      logger.info({ id, rating }, "Rating saved");
     } catch (dbError) {
-      console.warn("Failed to save rating to database:", dbError);
+      logger.warn({ err: dbError, id }, "Failed to save rating to database");
     }
 
     res.json({
@@ -153,13 +142,14 @@ router.patch("/:id/rating", async (req, res) => {
       message: "Rating received",
     });
   } catch (error) {
-    console.error("Rating error:", error);
+    logger.error({ err: error }, "Rating error");
     res.status(500).json({
       error: "Failed to update rating",
       details: error instanceof Error ? error.message : "Unknown error",
     });
   }
-});
+  }
+);
 
 export { router as reviewRoutes };
 
