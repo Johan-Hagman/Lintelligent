@@ -8,6 +8,7 @@ import PasteReviewContent from "./workspace/PasteReviewContent";
 import RepoReviewContent from "./workspace/RepoReviewContent";
 import { ReviewFeedback } from "./ReviewWorkspace.types";
 import { useAuth } from "../helper/AuthContext";
+import { API_BASE_URL } from "../utils/api";
 
 type ReviewTab = "paste" | "repo";
 
@@ -51,7 +52,7 @@ function ReviewWorkspace() {
     if (!reviewId) return;
     try {
       const response = await fetch(
-        `http://localhost:3001/api/review/${reviewId}/rating`,
+        `${API_BASE_URL}/api/review/${reviewId}/rating`,
         {
           method: "PATCH",
           headers: {
@@ -85,7 +86,7 @@ function ReviewWorkspace() {
     setRated(null);
 
     try {
-      const response = await fetch("http://localhost:3001/api/review", {
+      const response = await fetch(`${API_BASE_URL}/api/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

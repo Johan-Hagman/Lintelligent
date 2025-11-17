@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { SelectMenu, type SelectOption } from "./ui/SelectMenu";
+import { API_BASE_URL } from "../utils/api";
 
 interface Repo {
   id: number;
@@ -88,7 +89,7 @@ export default function RepoPicker({
       try {
         const [owner, repo] = repoFullName.split("/");
         const response = await fetch(
-          `http://localhost:3001/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(
+          `${API_BASE_URL}/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(
             filePath
           )}&ref=${branch}`,
           { credentials: "include" }
@@ -137,7 +138,7 @@ export default function RepoPicker({
 
   const fetchRepos = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/github/repos", {
+      const response = await fetch(`${API_BASE_URL}/api/github/repos`, {
         credentials: "include",
       });
       if (response.ok) {
@@ -154,7 +155,7 @@ export default function RepoPicker({
     try {
       const [owner, repo] = repoFullName.split("/");
       const response = await fetch(
-        `http://localhost:3001/api/github/repos/${owner}/${repo}/branches`,
+        `${API_BASE_URL}/api/github/repos/${owner}/${repo}/branches`,
         { credentials: "include" }
       );
       if (response.ok) {
@@ -176,7 +177,7 @@ export default function RepoPicker({
     try {
       const [owner, repo] = repoFullName.split("/");
       const response = await fetch(
-        `http://localhost:3001/api/github/repos/${owner}/${repo}/tree/${branch}`,
+        `${API_BASE_URL}/api/github/repos/${owner}/${repo}/tree/${branch}`,
         { credentials: "include" }
       );
       if (response.ok) {

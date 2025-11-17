@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { API_BASE_URL } from "../utils/api";
 
 export interface GitHubUser {
   id: number;
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3001/api/auth/me", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         credentials: "include",
       });
 
@@ -61,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     setLoading(true);
     try {
-      await fetch("http://localhost:3001/api/auth/logout", {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
