@@ -55,7 +55,7 @@ export default function CodeEditorPane({ code, onChange, language }: Props) {
   );
 
   return (
-    <div className="group mb-5 rounded-xl border border-divider bg-surface-raised">
+    <div className="group mb-5 rounded-xl border border-divider bg-surface-raised overflow-hidden">
       <div className="h-[500px] max-h-[500px] overflow-auto">
         <CodeEditor
           value={code}
