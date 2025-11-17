@@ -10,6 +10,7 @@ interface ReviewEditorProps {
   loading: boolean;
   onSubmit: () => void;
   showLanguageSelector?: boolean;
+  onReset?: () => void;
 }
 
 export default function ReviewEditor({
@@ -20,14 +21,27 @@ export default function ReviewEditor({
   loading,
   onSubmit,
   showLanguageSelector = true,
+  onReset,
 }: ReviewEditorProps) {
+  const hasCode = code.trim().length > 0;
+
   return (
     <section aria-label="Code editor" className="space-y-5">
       {showLanguageSelector && (
         <LanguageSelector value={language} onChange={onLanguageChange} />
       )}
       <CodeEditorPane code={code} onChange={onCodeChange} language={language} />
-      <div className="flex justify-center">
+      <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {onReset && (
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={onReset}
+            disabled={!hasCode || loading}
+          >
+            Rensa
+          </Button>
+        )}
         <Button
           onClick={onSubmit}
           disabled={loading}

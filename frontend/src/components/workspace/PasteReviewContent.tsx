@@ -7,6 +7,7 @@ interface PasteReviewContentProps {
   onLanguageChange: (language: string) => void;
   loading: boolean;
   onSubmit: () => void;
+  onReset: () => void;
 }
 
 export default function PasteReviewContent({
@@ -16,6 +17,7 @@ export default function PasteReviewContent({
   onLanguageChange,
   loading,
   onSubmit,
+  onReset,
 }: PasteReviewContentProps) {
   return (
     <ReviewEditor
@@ -25,7 +27,7 @@ export default function PasteReviewContent({
       onLanguageChange={onLanguageChange}
       loading={loading}
       onSubmit={onSubmit}
+      onReset={onReset}
     />
   );
 }
-

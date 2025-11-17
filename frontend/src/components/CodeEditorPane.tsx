@@ -29,6 +29,7 @@ export default function CodeEditorPane({ code, onChange, language }: Props) {
         placeholder="Paste your code here..."
         className="h-[500px] max-h-[500px] overflow-auto bg-surface-raised font-mono text-sm text-text focus:outline-none"
         textareaClassName="focus:outline-none caret-primary"
+        ignoreTabKey
         preClassName="!bg-transparent !text-text !font-mono !text-sm"
       />
     </div>

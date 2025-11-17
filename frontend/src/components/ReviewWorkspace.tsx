@@ -48,6 +48,15 @@ function ReviewWorkspace() {
     }
   };
 
+  const handleReset = () => {
+    setCode("");
+    setFeedback(null);
+    setReviewId(null);
+    setRated(null);
+    setError("");
+    setRepoInfo(null);
+  };
+
   const handleRating = async (rating: number) => {
     if (!reviewId) return;
     try {
@@ -166,6 +175,7 @@ function ReviewWorkspace() {
             onLanguageChange={setLanguage}
             loading={loading}
             onSubmit={handleSubmit}
+            onReset={handleReset}
           />
         ) : (
           <RepoReviewContent
@@ -177,6 +187,7 @@ function ReviewWorkspace() {
             loading={loading}
             onSubmit={handleSubmit}
             onFileSelect={handleFileSelect}
+            onReset={handleReset}
           />
         )}
       </section>

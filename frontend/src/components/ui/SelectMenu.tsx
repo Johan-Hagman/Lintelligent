@@ -58,6 +58,14 @@ export function SelectMenu<T extends string | number>({
     buttonRef.current?.focus();
   }, []);
 
+  const selectOption = useCallback(
+    (option: SelectOption<T> | null) => {
+      onChange(option === null ? null : option.value);
+      closeMenu();
+    },
+    [closeMenu, onChange]
+  );
+
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (disabled) return;
@@ -82,14 +90,23 @@ export function SelectMenu<T extends string | number>({
       const listElement = listRef.current;
       if (!listElement) return;
 
+      const current = event.currentTarget;
+      const index = Number(current.dataset.index ?? "-1");
+      const option = listItems[index];
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        if (option !== undefined) {
+          selectOption(option);
+        }
+        return;
+      }
+
       if (event.key === "Escape") {
         event.preventDefault();
         closeMenu();
         return;
       }
-
-      const current = event.currentTarget;
-      const index = Number(current.dataset.index ?? "-1");
 
       if (event.key === "ArrowDown") {
         event.preventDefault();
@@ -126,7 +143,7 @@ export function SelectMenu<T extends string | number>({
           ?.focus();
       }
     },
-    [closeMenu, listItems.length]
+    [closeMenu, listItems, selectOption]
   );
 
   useEffect(() => {
@@ -228,9 +245,7 @@ export function SelectMenu<T extends string | number>({
                       data-active={isSelected}
                       onKeyDown={handleOptionKeyDown}
                       onClick={() => {
-                        onChange(isPlaceholder ? null : option.value);
-                        setIsOpen(false);
-                        buttonRef.current?.focus();
+                        selectOption(option);
                       }}
                       className={cn(
                         "flex cursor-pointer flex-col gap-1 px-4 py-2 text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
