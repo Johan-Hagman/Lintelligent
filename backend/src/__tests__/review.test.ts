@@ -55,8 +55,11 @@ describe("Backend API", () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
-        expect.objectContaining({ error: "Code is required" })
+        expect.objectContaining({
+          error: "Validation failed",
+        })
       );
+      expect(response.body.details.fieldErrors.code).toContain("Required");
     });
 
     it("returns 500 when Anthropic API key is missing", async () => {
@@ -152,7 +155,12 @@ describe("Backend API", () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
-        expect.objectContaining({ error: "Invalid review ID format" })
+        expect.objectContaining({
+          error: "Validation failed",
+        })
+      );
+      expect(response.body.details.fieldErrors.id).toContain(
+        "Invalid review ID format"
       );
     });
 
@@ -166,8 +174,11 @@ describe("Backend API", () => {
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          error: "Rating must be 1 (thumbs up) or -1 (thumbs down)",
+          error: "Validation failed",
         })
+      );
+      expect(response.body.details.fieldErrors.rating).toContain(
+        "Rating must be 1 (thumbs up) or -1 (thumbs down)"
       );
     });
 
