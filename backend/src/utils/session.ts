@@ -21,8 +21,8 @@ export function setSession(res: Response, data: SessionData): void {
   const value = Buffer.from(JSON.stringify(data)).toString("base64url");
   res.cookie("sess", value, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
+    secure: true,
     signed: true,
     maxAge: 1000 * 60 * 60 * 8,
   });
@@ -54,5 +54,3 @@ export const requireSession = (
   res.locals.session = session;
   next();
 };
-
-
