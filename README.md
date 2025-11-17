@@ -85,23 +85,36 @@ The frontend runs on `http://localhost:3000` and the backend on `http://localhos
 
 ### Production Builds
 
-- Backend:
+- **Backend:**
+
   ```bash
-  yarn workspace backend build
-  yarn workspace backend start
+  yarn workspace backend build    # Compiles TypeScript to dist/
+  yarn workspace backend start    # Runs the compiled code
   ```
-- Frontend:
+
+  The build outputs to `backend/dist/`. Ensure all environment variables are set before running `start`.
+
+- **Frontend:**
   ```bash
-  yarn workspace frontend build
+  yarn workspace frontend build   # Creates optimized production build in build/
   ```
+  The build outputs to `frontend/build/` and can be served by any static file server or deployed to platforms like Vercel.
 
 ### Tests
 
-Frontend tests use React Testing Library:
+- **Frontend tests** (React Testing Library):
 
-```bash
-yarn workspace frontend test
-```
+  ```bash
+  yarn workspace frontend test
+  ```
+
+  Runs tests in watch mode by default. Press `a` to run all tests, or `q` to quit.
+
+- **Backend tests** (Vitest):
+  ```bash
+  yarn workspace backend test
+  ```
+  Runs all test suites once. Tests are located in `backend/src/__tests__/`.
 
 ## API Overview
 
@@ -127,7 +140,15 @@ The backend launches them automatically via `npx tsx src/index.ts` during a revi
 
 ## Supabase Database
 
-Reviews and ratings are stored in the `code_reviews` table. Create it with:
+Currently, Supabase serves as a logging archive for AI-generated feedback and user ratings. When a user submits code for review, the AI's suggestions and feedback are automatically saved along with the original code. Users can rate the quality of the AI feedback with thumbs up/down, and these ratings are persisted. However, this data is not yet displayed in the UI.
+
+**Future features** could include:
+
+- A review history page showing past code reviews with their ratings
+- Statistics and analytics based on user ratings
+- Learning loops to improve AI suggestions based on rating patterns
+
+The `code_reviews` table schema:
 
 ```sql
 create table if not exists code_reviews (
