@@ -1,4 +1,5 @@
 import { useMemo, useState, type ComponentProps } from "react";
+import DOMPurify from "dompurify";
 import { ReviewSuggestion } from "./ReviewWorkspace.types";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
@@ -64,15 +65,18 @@ export default function SuggestionItem({ suggestion }: Props) {
     const escapeHtml = (code: string) =>
       code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-    if (!grammar) {
-      return escapeHtml(suggestion.fixedCode);
-    }
+    const rawHtml = (() => {
+      if (!grammar) {
+        return escapeHtml(suggestion.fixedCode);
+      }
+      try {
+        return highlight(suggestion.fixedCode, grammar, languageId);
+      } catch {
+        return escapeHtml(suggestion.fixedCode);
+      }
+    })();
 
-    try {
-      return highlight(suggestion.fixedCode, grammar, languageId);
-    } catch {
-      return escapeHtml(suggestion.fixedCode);
-    }
+    return DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } });
   }, [suggestion.fixedCode]);
 
   const highlightLanguage = languages.typescript ? "typescript" : "javascript";
