@@ -24,7 +24,7 @@ Lintelligent/
 ├── backend/           # Express API, MCP integration, Supabase client
 ├── frontend/          # React 19 app with Tailwind-inspired UI components
 ├── mcp-servers/       # Standalone MCP servers (code standards + repo context)
-└── docs/              # Project documentation (AI usage, architecture notes, etc.)
+└── docs/              # Project documentation (AI instructions, architecture notes, etc.)
 ```
 
 The backend launches the MCP servers via `npx tsx`, collects context, and injects it into the prompt sent to Claude. Supabase provides persistent storage for reviews and user feedback.
@@ -163,8 +163,6 @@ create table if not exists code_reviews (
   rated_at timestamptz
 );
 ```
-
-Optionally enforce `user_rating` to `[1, -1]` with a CHECK constraint. The Supabase client reuses a single connection and throws descriptive errors when environment variables are missing.
 
 ## Documentation
 
