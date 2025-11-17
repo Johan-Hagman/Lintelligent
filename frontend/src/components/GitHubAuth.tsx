@@ -1,5 +1,6 @@
 import { Button } from "./ui/Button";
 import { useAuth } from "../helper/AuthContext";
+import { API_BASE_URL } from "../utils/api";
 
 export default function GitHubAuth() {
   const { status, loading, logout } = useAuth();
@@ -33,7 +34,7 @@ export default function GitHubAuth() {
   return (
     <Button
       as="a"
-      href="http://localhost:3001/api/auth/github/login"
+      href={`${API_BASE_URL}/api/auth/github/login`}
       variant="secondary"
       size="sm"
       className="px-4 py-2"
