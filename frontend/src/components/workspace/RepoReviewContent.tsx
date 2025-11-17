@@ -14,6 +14,7 @@ interface RepoReviewContentProps {
     path: string,
     repoInfo?: { owner: string; repo: string; ref: string; filePath: string }
   ) => void;
+  onReset: () => void;
 }
 
 export default function RepoReviewContent({
@@ -25,6 +26,7 @@ export default function RepoReviewContent({
   loading,
   onSubmit,
   onFileSelect,
+  onReset,
 }: RepoReviewContentProps) {
   if (!isAuthenticated) {
     return (
@@ -52,10 +54,10 @@ export default function RepoReviewContent({
             onLanguageChange={onLanguageChange}
             loading={loading}
             onSubmit={onSubmit}
+            onReset={onReset}
           />
         </section>
       )}
     </section>
   );
 }
-
