@@ -76,11 +76,6 @@ export default function RepoPicker({
 
   const fetchFileContent = useCallback(
     async (repoFullName: string, branch: string, filePath: string) => {
-      console.log("fetchFileContent called with:", {
-        repoFullName,
-        branch,
-        filePath,
-      });
       if (!filePath) {
         console.error("filePath is missing in fetchFileContent!");
         return;
@@ -104,7 +99,6 @@ export default function RepoPicker({
               ref: branch,
               filePath,
             };
-            console.log("Calling onFileSelect with repoInfo:", repoInfo);
             onFileSelectRef.current?.(content, filePath, repoInfo);
           } else {
             console.error("Unexpected content format:", data);
@@ -121,18 +115,8 @@ export default function RepoPicker({
 
   useEffect(() => {
     if (selectedRepo && selectedBranch && selectedFile) {
-      console.log("useEffect triggering fetchFileContent:", {
-        selectedRepo,
-        selectedBranch,
-        selectedFile,
-      });
       fetchFileContent(selectedRepo, selectedBranch, selectedFile);
     } else {
-      console.log("useEffect not triggering - missing:", {
-        selectedRepo,
-        selectedBranch,
-        selectedFile,
-      });
     }
   }, [fetchFileContent, selectedRepo, selectedBranch, selectedFile]);
 
