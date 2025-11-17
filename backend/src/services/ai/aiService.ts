@@ -23,6 +23,8 @@ export interface ReviewResult {
   aiModel: string;
 }
 
+const MODEL_ID = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5-20250929";
+
 export async function reviewCode({
   apiKey,
   code,
@@ -44,7 +46,7 @@ export async function reviewCode({
     : "";
 
   const result = await client.messages.create({
-    model: "claude-3-haiku-20240307",
+    model: MODEL_ID,
     max_tokens: 1500,
     temperature: 0.1,
     messages: [
@@ -52,7 +54,7 @@ export async function reviewCode({
         role: "user",
         content:
           "You are a code reviewer. Return ONLY valid JSON in this format: " +
-          '{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":"plain text summary", "aiModel":"claude-3-haiku-20240307"}. ' +
+          `{"suggestions":[{"severity":"low|medium|high","line":number,"message":string,"reason":string,"fixedCode":string}], "summary":"plain text summary", "aiModel":"${MODEL_ID}"}. ` +
           "Return ONLY raw JSON, no markdown, no prose, no code fences. " +
           "PRIORITY: Code evidence FIRST. Examine actual code behavior before external hints. " +
           "SEVERITY GUIDE: Type mismatches (API/method returns different type than declared/expected) = medium+. Runtime errors (ReferenceError, undefined access, out-of-scope variables) = medium+. Logic errors = medium+. Security risks = high. Style-only = low. " +
@@ -61,6 +63,8 @@ export async function reviewCode({
           "Look for: type mismatches, logic errors, scope issues, API misuse, security risks. " +
           "Each suggestion MUST cite exact line number and quote the exact offending code. " +
           "Only flag issues actually present in the code." +
+          "If there is a type mismatch, fix it by adjusting the return type OR converting the value to the expected type (e.g., parseFloat(...)), NOT by removing formatting or functionality." +
+          "If there is a scope error, fix it by moving, lifting, or restructuring the variable or logic so it remains accessible, NOT by deleting the referring code." +
           "Review TARGET FILE line by line. When needed, look at related files from PROJECT CONTEXT to confirm how shared state or helpers behave.",
       },
       {
@@ -98,9 +102,9 @@ export async function reviewCode({
     parsed = {
       suggestions: [],
       summary: "Failed to parse AI response. Please try again.",
-      aiModel: (result as any)?.model || "unknown",
+      aiModel: (result as any)?.model || MODEL_ID,
     };
   }
-  if (!parsed.aiModel) parsed.aiModel = (result as any)?.model || "unknown";
+  if (!parsed.aiModel) parsed.aiModel = (result as any)?.model || MODEL_ID;
   return parsed;
 }

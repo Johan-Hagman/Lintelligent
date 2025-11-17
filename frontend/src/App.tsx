@@ -1,7 +1,7 @@
 import DarkVeil from "./components/ui/darkveil";
 import ReviewWorkspace from "./components/ReviewWorkspace";
 import Footer from "./components/footer";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./helper/AuthContext";
 
 function App() {
   return (

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { SelectMenu, type SelectOption } from "./ui/SelectMenu";
 
 interface Repo {
   id: number;
@@ -67,6 +68,56 @@ export default function RepoPicker({
     }
   }, [selectedRepo, selectedBranch]);
 
+  const onFileSelectRef = useRef(onFileSelect);
+  useEffect(() => {
+    onFileSelectRef.current = onFileSelect;
+  }, [onFileSelect]);
+
+  const fetchFileContent = useCallback(
+    async (repoFullName: string, branch: string, filePath: string) => {
+      console.log("fetchFileContent called with:", {
+        repoFullName,
+        branch,
+        filePath,
+      });
+      if (!filePath) {
+        console.error("filePath is missing in fetchFileContent!");
+        return;
+      }
+      setLoading(true);
+      try {
+        const [owner, repo] = repoFullName.split("/");
+        const response = await fetch(
+          `http://localhost:3001/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(
+            filePath
+          )}&ref=${branch}`,
+          { credentials: "include" }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.content && data.encoding === "base64") {
+            const content = atob(data.content.replace(/\s/g, ""));
+            const repoInfo = {
+              owner,
+              repo,
+              ref: branch,
+              filePath,
+            };
+            console.log("Calling onFileSelect with repoInfo:", repoInfo);
+            onFileSelectRef.current?.(content, filePath, repoInfo);
+          } else {
+            console.error("Unexpected content format:", data);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch file content:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (selectedRepo && selectedBranch && selectedFile) {
       console.log("useEffect triggering fetchFileContent:", {
@@ -82,7 +133,7 @@ export default function RepoPicker({
         selectedFile,
       });
     }
-  }, [selectedRepo, selectedBranch, selectedFile]);
+  }, [fetchFileContent, selectedRepo, selectedBranch, selectedFile]);
 
   const fetchRepos = async () => {
     try {
@@ -144,115 +195,68 @@ export default function RepoPicker({
     }
   };
 
-  const fetchFileContent = async (
-    repoFullName: string,
-    branch: string,
-    filePath: string
-  ) => {
-    console.log("fetchFileContent called with:", {
-      repoFullName,
-      branch,
-      filePath,
-    });
-    if (!filePath) {
-      console.error("filePath is missing in fetchFileContent!");
-      return;
-    }
-    setLoading(true);
-    try {
-      const [owner, repo] = repoFullName.split("/");
-      const response = await fetch(
-        `http://localhost:3001/api/github/repos/${owner}/${repo}/contents?path=${encodeURIComponent(
-          filePath
-        )}&ref=${branch}`,
-        { credentials: "include" }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        // Decode base64 content (GitHub API returns content as base64)
-        if (data.content && data.encoding === "base64") {
-          const content = atob(data.content.replace(/\s/g, ""));
-          const repoInfo = {
-            owner,
-            repo,
-            ref: branch,
-            filePath: filePath, // Use the parameter, not a variable
-          };
-          console.log("Calling onFileSelect with repoInfo:", repoInfo);
-          onFileSelect(content, filePath, repoInfo);
-        } else {
-          console.error("Unexpected content format:", data);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch file content:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const repoOptions = useMemo<SelectOption<string>[]>(
+    () =>
+      repos.map((repo) => ({
+        label: repo.full_name,
+        value: repo.full_name,
+      })),
+    [repos]
+  );
 
-  const selectClasses =
-    "block w-full rounded-lg border border-divider/60 bg-surface-raised/60 px-3 py-2 text-sm text-text shadow-sm transition focus:border-primary focus:outline-none focus-visible:ring-3 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-60";
+  const branchOptions = useMemo<SelectOption<string>[]>(
+    () =>
+      branches.map((branch) => ({
+        label: branch.name,
+        value: branch.name,
+      })),
+    [branches]
+  );
+
+  const fileOptions = useMemo<SelectOption<string>[]>(
+    () =>
+      files.map((file) => ({
+        label: file.path,
+        value: file.path,
+      })),
+    [files]
+  );
 
   return (
     <section aria-label="Repository selection" className="mb-6 space-y-4">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-muted">
-          Select Repo
-        </label>
-        <select
-          value={selectedRepo || ""}
-          onChange={(e) => setSelectedRepo(e.target.value || null)}
-          className={selectClasses}
-        >
-          <option value="">-- Select Repository --</option>
-          {repos.map((repo) => (
-            <option key={repo.id} value={repo.full_name}>
-              {repo.full_name}
-            </option>
-          ))}
-        </select>
+        <SelectMenu
+          label="Select Repo"
+          options={repoOptions}
+          value={selectedRepo}
+          placeholder="-- Select Repository --"
+          onChange={setSelectedRepo}
+          emptyMessage="No repositories available."
+        />
       </div>
 
       {selectedRepo && (
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-text-muted">
-            Select Branch
-          </label>
-          <select
-            value={selectedBranch || ""}
-            onChange={(e) => setSelectedBranch(e.target.value || null)}
-            disabled={loading || branches.length === 0}
-            className={selectClasses}
-          >
-            {branches.map((branch) => (
-              <option key={branch.name} value={branch.name}>
-                {branch.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectMenu
+          label="Select Branch"
+          options={branchOptions}
+          value={selectedBranch}
+          placeholder="-- Select Branch --"
+          disabled={loading || branches.length === 0}
+          onChange={setSelectedBranch}
+          emptyMessage="No branches available."
+        />
       )}
 
       {selectedRepo && selectedBranch && (
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-text-muted">
-            Select File
-          </label>
-          <select
-            value={selectedFile || ""}
-            onChange={(e) => setSelectedFile(e.target.value || null)}
-            disabled={loading || files.length === 0}
-            className={selectClasses}
-          >
-            <option value="">-- Select File --</option>
-            {files.map((file) => (
-              <option key={file.sha} value={file.path}>
-                {file.path}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectMenu
+          label="Select File"
+          options={fileOptions}
+          value={selectedFile}
+          placeholder="-- Select File --"
+          disabled={loading || files.length === 0}
+          onChange={setSelectedFile}
+          emptyMessage="No matching files found in this branch."
+        />
       )}
 
       {loading && (

@@ -1,8 +1,12 @@
-import { useState, type ComponentProps } from "react";
+import { useMemo, useState, type ComponentProps } from "react";
 import { ReviewSuggestion } from "./ReviewWorkspace.types";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import { highlight, languages } from "prismjs";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-typescript";
+import "prismjs/themes/prism-tomorrow.css";
 
 interface Props {
   suggestion: ReviewSuggestion;
@@ -18,17 +22,20 @@ const severityStyles: Record<
 > = {
   high: {
     badgeTone: "danger",
-    cardClasses: "border-danger/60 border-l-4 border-l-danger bg-danger/5",
+    cardClasses:
+      "border-danger/60 border-l-4 border-l-danger bg-surface text-danger",
     headingClass: "text-danger",
   },
   medium: {
     badgeTone: "warning",
-    cardClasses: "border-warning/60 border-l-4 border-l-warning bg-warning/5",
+    cardClasses:
+      "border-warning/60 border-l-4 border-l-warning bg-surface text-warning",
     headingClass: "text-warning",
   },
   low: {
     badgeTone: "success",
-    cardClasses: "border-success/60 border-l-4 border-l-success bg-success/5",
+    cardClasses:
+      "border-success/60 border-l-4 border-l-success bg-surface text-success",
     headingClass: "text-success",
   },
 };
@@ -48,9 +55,31 @@ export default function SuggestionItem({ suggestion }: Props) {
     }
   };
 
+  const highlightedFix = useMemo(() => {
+    if (!suggestion.fixedCode) return "";
+    const grammar =
+      languages.typescript || languages.javascript || languages.clike;
+    const languageId = languages.typescript ? "typescript" : "javascript";
+
+    const escapeHtml = (code: string) =>
+      code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    if (!grammar) {
+      return escapeHtml(suggestion.fixedCode);
+    }
+
+    try {
+      return highlight(suggestion.fixedCode, grammar, languageId);
+    } catch {
+      return escapeHtml(suggestion.fixedCode);
+    }
+  }, [suggestion.fixedCode]);
+
+  const highlightLanguage = languages.typescript ? "typescript" : "javascript";
+
   return (
     <article aria-label={`Suggestion at line ${suggestion.line}`}>
-      <Card tone="subtle" padding="md" className={severity.cardClasses}>
+      <Card tone="muted" padding="md" className={severity.cardClasses}>
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <Badge tone={severity.badgeTone} className="uppercase tracking-wide">
             {suggestion.severity}
@@ -82,7 +111,10 @@ export default function SuggestionItem({ suggestion }: Props) {
               </Button>
             </div>
             <pre className="max-h-80 overflow-auto rounded-lg border border-divider bg-surface-raised px-4 py-3 text-xs leading-6 text-text">
-              {suggestion.fixedCode}
+              <code
+                className={`language-${highlightLanguage} block whitespace-pre font-mono text-sm`}
+                dangerouslySetInnerHTML={{ __html: highlightedFix }}
+              />
             </pre>
           </div>
         )}

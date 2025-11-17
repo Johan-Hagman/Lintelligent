@@ -7,7 +7,7 @@ import WorkspaceTabs from "./workspace/WorkspaceTabs";
 import PasteReviewContent from "./workspace/PasteReviewContent";
 import RepoReviewContent from "./workspace/RepoReviewContent";
 import { ReviewFeedback } from "./ReviewWorkspace.types";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../helper/AuthContext";
 
 type ReviewTab = "paste" | "repo";
 
