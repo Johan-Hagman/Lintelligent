@@ -32,6 +32,14 @@ export default function ReviewEditor({
       )}
       <CodeEditorPane code={code} onChange={onCodeChange} language={language} />
       <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Button
+          onClick={onSubmit}
+          disabled={loading}
+          isLoading={loading}
+          size="lg"
+        >
+          {loading ? "Reviewing..." : "Review Code"}
+        </Button>
         {onReset && (
           <Button
             variant="ghost"
@@ -42,14 +50,6 @@ export default function ReviewEditor({
             Clear Code
           </Button>
         )}
-        <Button
-          onClick={onSubmit}
-          disabled={loading}
-          isLoading={loading}
-          size="lg"
-        >
-          {loading ? "Reviewing..." : "Review Code"}
-        </Button>
       </div>
     </section>
   );
