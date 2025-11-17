@@ -45,7 +45,7 @@ export function createApp() {
 
   const allowedOrigins = [
     "http://localhost:3000",
-    "https://lintelligent.vercel.app",
+    "https://lintelligent-frontend.vercel.app",
   ];
 
   app.use(
