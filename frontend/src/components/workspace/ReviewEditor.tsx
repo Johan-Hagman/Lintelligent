@@ -39,7 +39,7 @@ export default function ReviewEditor({
             onClick={onReset}
             disabled={!hasCode || loading}
           >
-            Rensa
+            Clear Code
           </Button>
         )}
         <Button

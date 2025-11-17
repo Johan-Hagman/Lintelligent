@@ -33,7 +33,7 @@ export default function Rating({ visible, rated, onRate }: Props) {
         <Card
           tone="subtle"
           padding="sm"
-          className="flex flex-wrap items-center gap-2 border-success/40 bg-success/10 text-success"
+          className="flex flex-wrap items-center justify-center gap-2 border-success/40 bg-success/10 text-success"
         >
           <span className="text-lg font-semibold">✓</span>
           <span className="text-sm font-medium text-success">
