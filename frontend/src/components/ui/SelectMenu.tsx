@@ -204,15 +204,6 @@ export function SelectMenu<T extends string | number>({
               <span className="text-text-muted">{placeholder}</span>
             )}
           </span>
-          <span
-            className={cn(
-              "inline-flex h-5 w-5 items-center justify-center rounded-full border border-divider/60 text-xs text-text-muted transition",
-              isOpen && "rotate-180"
-            )}
-            aria-hidden
-          >
-            v
-          </span>
         </button>
         {isOpen && (
           <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-divider/60 bg-surface-raised shadow-surface">
