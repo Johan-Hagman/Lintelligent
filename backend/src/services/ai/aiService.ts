@@ -81,6 +81,7 @@ export async function reviewCode({
           "Requirements:",
           "- Cite exact line number and quote exact code for each issue.",
           "- Show suggested fixes in fixedCode when relevant.",
+          "- When adding or correcting imports, use the exact filenames or paths that already exist in the visible code or project context. Do not invent new module names; if you cannot confirm the correct file name from context, explain the uncertainty instead of guessing.",
           repoContextHint,
           mcpCompressedHint,
         ]
