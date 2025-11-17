@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { ReviewFeedback } from "./ReviewWorkspace.types";
 import { Badge } from "./ui/Badge";
 import { Card } from "./ui/Card";
@@ -8,6 +9,16 @@ interface Props {
 }
 
 export default function Feedback({ feedback }: Props) {
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!feedback) return;
+    containerRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [feedback]);
+
   if (!feedback) return null;
 
   const severityCounts = feedback.suggestions.reduce((acc, s) => {
@@ -16,7 +27,11 @@ export default function Feedback({ feedback }: Props) {
   }, {} as Record<string, number>);
 
   return (
-    <section aria-label="Review results" className="mt-8 space-y-6">
+    <section
+      aria-label="Review results"
+      className="mt-8 space-y-6"
+      ref={containerRef}
+    >
       <Card tone="muted" padding="lg" className="space-y-4 backdrop-blur-sm">
         <h2 className="text-2xl font-semibold text-text">Review Results</h2>
         <div className="flex flex-wrap gap-3">
