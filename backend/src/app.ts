@@ -12,6 +12,7 @@ import { logger } from "./utils/logger.js";
 
 export function createApp() {
   const app = express();
+  app.set("trust proxy", 1);
 
   const sessionSecret = process.env.SESSION_SECRET;
   if (!sessionSecret) {
@@ -42,9 +43,14 @@ export function createApp() {
   });
   app.use("/api", apiLimiter as unknown as RequestHandler);
 
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://lintelligent.vercel.app",
+  ];
+
   app.use(
     cors({
-      origin: ["http://localhost:3000"],
+      origin: allowedOrigins,
       methods: ["GET", "POST", "PATCH"],
       credentials: true,
     })
