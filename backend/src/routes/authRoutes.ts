@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { clearSession, getSession, setSession } from "../utils/session.js";
+import { logger } from "../utils/logger.js";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get("/github/login", (_req, res) => {
   const scope = "repo read:user";
 
   if (!clientId) {
+    logger.error("GitHub OAuth not configured");
     return res.status(500).json({ error: "GitHub OAuth not configured" });
   }
 
@@ -25,9 +27,9 @@ router.get("/github/login", (_req, res) => {
 
   const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
     clientId
-  )}&redirect_uri=${encodeURIComponent(
-    redirectUri
-  )}&scope=${encodeURIComponent(scope)}&state=${state}`;
+  )}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(
+    scope
+  )}&state=${state}`;
   res.redirect(url);
 });
 
@@ -45,6 +47,7 @@ router.get("/github/callback", async (req, res) => {
 
   const storedState = req.signedCookies?.oauth_state;
   if (!storedState || storedState !== state) {
+    logger.warn("Invalid OAuth state");
     return res
       .status(403)
       .send("Invalid state parameter - possible CSRF attack");
@@ -53,21 +56,24 @@ router.get("/github/callback", async (req, res) => {
   res.clearCookie("oauth_state");
 
   try {
-    const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
-        code,
-        redirect_uri:
-          process.env.GITHUB_REDIRECT_URI ||
-          "http://localhost:3001/api/auth/github/callback",
-      }),
-    });
+    const tokenRes = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          code,
+          redirect_uri:
+            process.env.GITHUB_REDIRECT_URI ||
+            "http://localhost:3001/api/auth/github/callback",
+        }),
+      }
+    );
 
     if (!tokenRes.ok) {
       return res.status(400).send("Failed to exchange code for token");
@@ -95,7 +101,7 @@ router.get("/github/callback", async (req, res) => {
     setSession(res, { ghToken: accessToken, ghUser });
     res.redirect("http://localhost:3000");
   } catch (error) {
-    console.error("OAuth callback error:", error);
+    logger.error({ err: error }, "OAuth callback error");
     res.status(500).send("Authentication failed");
   }
 });
@@ -117,5 +123,3 @@ router.post("/logout", (_req, res) => {
 });
 
 export { router as authRoutes };
-
-
