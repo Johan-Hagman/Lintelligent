@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SelectMenu } from "./SelectMenu";
+import { SelectMenu } from "../SelectMenu";
 
 const OPTIONS = [
   { label: "Option A", value: "a" },
