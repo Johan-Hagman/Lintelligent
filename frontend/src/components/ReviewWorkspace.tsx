@@ -116,9 +116,6 @@ function ReviewWorkspace() {
         }),
       });
 
-      // Debug: log what we're sending
-      console.log("Sending review request with repoInfo:", repoInfo);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
