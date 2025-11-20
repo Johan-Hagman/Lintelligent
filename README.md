@@ -27,7 +27,78 @@ Lintelligent/
 └── docs/              # Project documentation (AI instructions, architecture notes, etc.)
 ```
 
-The backend launches the MCP servers via `npx tsx`, collects context, and injects it into the prompt sent to Claude. Supabase provides persistent storage for reviews and user feedback.
+## Visual Flow Tree
+
+```
+                    ┌─────────────────┐
+                    │   User Input    │
+                    └────────┬────────┘
+                             │
+                             │ POST /api/review
+                             ▼
+                    ┌─────────────────┐
+                    │ Frontend React  │
+                    │    (UI Layer)   │
+                    └────────┬────────┘
+                             │
+                             │ HTTP Request
+                             ▼
+                    ┌─────────────────┐
+                    │ Backend Express │
+                    │   (API Layer)   │
+                    └────────┬────────┘
+                             │
+                ┌────────────┴────────────┐
+                │                         │
+                │ Call MCP tools          │
+                │                         │
+                ▼                         ▼
+    ┌────────────────────┐    ┌────────────────────┐
+    │ MCP: code-standards│    │ MCP: repo-context  │
+    │ Coding Standards   │    │ GitHub Context     │
+    │ Security Rules     │    │ Project Files      │
+    └──────────┬─────────┘    └──────────┬─────────┘
+               │                         │
+               └────────────┬────────────┘
+                            │
+                            │ Return context
+                            ▼
+                    ┌─────────────────┐
+                    │ Backend Express │
+                    │  (combines all) │
+                    └────────┬────────┘
+                             │
+                             │ Code + Context
+                             ▼
+                    ┌─────────────────┐
+                    │ AI Anthropic    │
+                    │   Claude Sonnet │
+                    └────────┬────────┘
+                             │
+                             │ JSON Response
+                             ▼
+                    ┌─────────────────┐
+                    │ Backend Express │
+                    └────────┬────────┘
+                             │
+                ┌────────────┴────────────┐
+                │                         │
+                │ Save review             │ Return JSON
+                │                         │
+                ▼                         ▼
+    ┌───────────────────┐    ┌─────────────────┐
+    │ Database Supabase │    │ Frontend React  │
+    │   (Dead End)      │    │                 │
+    └───────────────────┘    └────────┬────────┘
+                                      │
+                                      │ Display
+                                      ▼
+                              ┌─────────────────┐
+                              │ User Feedback   │
+                              └─────────────────┘
+```
+
+
 
 ## Tech Stack
 
@@ -146,7 +217,7 @@ Currently, Supabase serves as a logging archive for AI-generated feedback and us
 
 - A review history page showing past code reviews with their ratings
 - Statistics and analytics based on user ratings
-- Learning loops to improve AI suggestions based on rating patterns
+- Learning loops to improve AI suggestions based on rating patterns 
 
 The `code_reviews` table schema:
 
